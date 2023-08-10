@@ -1,0 +1,63 @@
+{
+	"item": [
+		["yellow-arrow", "basic-slim-inserter"],
+		["yellow-arrow_arr", "basic-slim-inserter_arrow"],
+		["long-arrow", "long-slim-inserter"],
+		["long-arrow_arr", "long-slim-inserter_arrow"],
+		["fast-arrow", "fast-slim-inserter"],
+		["fast-arrow_arr", "fast-slim-inserter_arrow"],
+		["stack-arrow", "stack-slim-inserter"],
+		["stack-arrow_arr", "stack-slim-inserter_arrow"],
+
+		["yellow-double-arrow", "basic-double-slim-inserter"],
+		["yellow-double-arrow_part", "basic-double-slim-inserter_part"],
+		["yellow-double-arrow_arr", "basic-double-slim-inserter_arrow"],
+		["stack-double-arrow", "stack-double-slim-inserter"],
+		["stack-double-arrow_part", "stack-double-slim-inserter_part"],
+		["stack-double-arrow_arr", "stack-double-slim-inserter_arrow"],
+		["filter-double-arrow", "filter-double-slim-inserter"],
+		["filter-double-arrow_part", "filter-double-slim-inserter_part"],
+		["filter-double-arrow_arr", "filter-double-slim-inserter_arrow"]
+	],
+	"recipe": [
+		["yellow-arrow", "basic-slim-inserter"],
+		["yellow-arrow_arr", "basic-slim-inserter_arrow"],
+		["long-arrow", "long-slim-inserter"],
+		["long-arrow_arr", "long-slim-inserter_arrow"],
+		["fast-arrow", "fast-slim-inserter"],
+		["fast-arrow_arr", "fast-slim-inserter_arrow"],
+		["stack-arrow", "stack-slim-inserter"],
+		["stack-arrow_arr", "stack-slim-inserter_arrow"],
+
+		["yellow-double-arrow", "basic-double-slim-inserter"],
+		["yellow-double-arrow_part", "basic-double-slim-inserter_part"],
+		["yellow-double-arrow_arr", "basic-double-slim-inserter_arrow"],
+		["stack-double-arrow", "stack-double-slim-inserter"],
+		["stack-double-arrow_part", "stack-double-slim-inserter_part"],
+		["stack-double-arrow_arr", "stack-double-slim-inserter_arrow"],
+		["filter-double-arrow", "filter-double-slim-inserter"],
+		["filter-double-arrow_part", "filter-double-slim-inserter_part"],
+		["filter-double-arrow_arr", "filter-double-slim-inserter_arrow"]
+	],
+	"entity": [
+		["yellow-arrow", "basic-slim-inserter"],
+		["yellow-arrow_arr", "basic-slim-inserter_arrow"],
+		["long-arrow", "long-slim-inserter"],
+		["long-arrow_arr", "long-slim-inserter_arrow"],
+		["fast-arrow", "fast-slim-inserter"],
+		["fast-arrow_arr", "fast-slim-inserter_arrow"],
+		["stack-arrow", "stack-slim-inserter"],
+		["stack-arrow_arr", "stack-slim-inserter_arrow"],
+
+		["yellow-double-arrow", "basic-double-slim-inserter"],
+		["yellow-double-arrow_part", "basic-double-slim-inserter_part"],
+		["yellow-double-arrow_arr", "basic-double-slim-inserter_arrow"],
+		["stack-double-arrow", "stack-double-slim-inserter"],
+		["stack-double-arrow_part", "stack-double-slim-inserter_part"],
+		["stack-double-arrow_arr", "stack-double-slim-inserter_arrow"],
+		["filter-double-arrow", "filter-double-slim-inserter"],
+		["filter-double-arrow_part", "filter-double-slim-inserter_part"],
+		["filter-double-arrow_arr", "filter-double-slim-inserter_arrow"]
+	]
+  }
+  

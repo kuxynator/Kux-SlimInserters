@@ -1,0 +1,120 @@
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 2023-08-05
+  Features:
+    - NEW part ..inserter
+    - NEW double ..inserter
+  Changes:
+    - inserter renamed from ..arrow to ..slim-inserter
+  Info:
+    - [NEW MOD] because some bugfixes causing incompatible changes, I decided to create a new mod.
+---------------------------------------------------------------------------------------------------
+Version: 0.5.8
+Date: 2023-07-15
+  Bugfixes:
+    - use "%-arrow$" instad of "arrow" to identify the the items
+    - many hacks and bugfixes
+    - FIX names are not consistent if bobinserters is installed (This breaks savegames!)
+  Info:
+    - [NOT PUBLISHED] because some bugfixes causing incompatible changes, I decided not to publish this version.
+---------------------------------------------------------------------------------------------------
+Version: 0.5.7
+---------------------------------------------------------------------------------------------------
+Version: 0.5.6
+Date: 2022-07-26
+  Changes:
+    - Debug log leak removed
+  Features:
+    - Added option to add one filter slot (off by default)
+---------------------------------------------------------------------------------------------------
+Version: 0.5.5
+Date: 2022-07-26
+  Features:
+    - Picker dollies support
+    - You can place-and-delete arrow on top of phantom arrow bug, to remove it!
+---------------------------------------------------------------------------------------------------
+Version: 0.5.4
+Date: 2022.07.22
+  Changes:
+    - Recipes are newer overwritten now
+---------------------------------------------------------------------------------------------------
+Version: 0.5.3
+Date: 2022.06.25
+  Features:
+    - Recipes are now unlocked along with their respective inserters
+  Changes:
+    - Removed stack limitation
+---------------------------------------------------------------------------------------------------
+Version: 0.5.2
+Date: 2022.06.25
+  Changes:
+    - Fixed low-res non-tinted, non-scaled base texture
+    - Copied description from mod portal
+    - Attempt to K2 + SE support
+---------------------------------------------------------------------------------------------------
+Version: 0.5.1
+Date: 2022.05.29
+  Changes:
+    - Fixed migration
+    - Fixed Bug with Squeak Through, where you can place any amount of arrows in one place
+---------------------------------------------------------------------------------------------------
+Version: 0.5.0
+Date: 2022.05.29
+  Features:
+    - Support of Squeak Through
+    - Investigating Bob's mods! 
+      - Added Turbo arrow
+      - Arrow recipes optimised for bobelectronics
+      - Arrows have different rotation behaviour if bobinserters installed!
+        - Instead of rotating it now switches modes
+        - Every new mode is locked behind research
+        - normal(open) -> long(long-inserters-1) -> stack(More-inserters-1) -> stack-long(Long-inserters-2)
+---------------------------------------------------------------------------------------------------
+Version: 0.4.0
+Date: 2022.05.27
+  Features:
+    - Support of Krastorio2
+    - Added changelog
+---------------------------------------------------------------------------------------------------
+Version: 0.3.2
+Date: 2022.05.26
+  Changes:
+    - Long arrow behaves more like it should :)  Thanks @Stringweasel
+---------------------------------------------------------------------------------------------------
+Version: 0.3.1
+Date: 2022.05.26
+  Changes:
+    - Compatibility with any mod that changes pickup/drop positions  Thanks @Dominiquini
+---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 2022.05.25
+  Features:
+    - Added long arrow that behaves like basic inserter
+    - Added bobinserter compatibility
+    - Added mini-tutorial on creating new arrow, with all needed and optional variables
+  Optimisations:
+    - Internal function tweaks to make code even more expandable
+---------------------------------------------------------------------------------------------------
+Version: 0.2.1
+Date: 2022.05.24
+  Optimisations:
+    - Internal function tweaks to make code easily expandable
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 2022.05.24
+  Changes:
+    - Change recipes and energy
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+Date: 2022.05.24
+  Info:
+    - Removed annoying "hoi" message when destroying arrow
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2022.05.23
+  Info:
+    - Initial release
+  Locale:
+    - English are available
+  License:
+    - MIT
