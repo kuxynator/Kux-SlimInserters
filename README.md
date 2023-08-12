@@ -26,7 +26,7 @@ I start with the slim inserter series like in the vanilla series:
 
 I will extend this series over time with more inserter types if needed for compatibility.
 
-With support of (Bob's Adjustable Inserters)[https://mods.factorio.com/mod/bobinserters] you will get all variants of Long Inserters for any Filter-/Stack Inserters. Version greater then 1.1.7 is required!
+With support of [Bob's Adjustable Inserters](https://mods.factorio.com/mod/)] you will get all variants of Long Inserters for any Filter-/Stack Inserters. Expected to be available in version 1.1.8. PR ist pending. 
 
 A second series of inserters will give you the ability to use 2 lanes of the belt simultanously: The **Double Slim Inserter series**
 
@@ -43,9 +43,11 @@ The "*Double Inserter*" is a new concept from me that allows you to use 2 insert
 
 ## Dual/Multi Inserter
 
-The "*Dual/Multi Inserter*" is a new concept from me that allows you to place 2 or more inserters of any type on one tile.
+The "*Dual/Multi Inserter*" is a new concept from me that allows you to place 2 or more Slim Inserter of any type on one tile.
+
+This does not require any new inserter types, but the tile can be occupied by several inserters. These then work together as a group. Drawback: If this feature is enabled, you can not use "fast replace" or "upgrade" because each new inserter is handled as new inserter for this tile. But a solution will be found for that as well.
 
 ## Credits
 
-Without [Arow Inserter](https://mods.factorio.com/mod/arrow-inserter) this mod would not exitst. So spezial thanks to [Bleb1k](https://mods.factorio.com/user/bleb1k)
+Without [Arow Inserter](https://mods.factorio.com/mod/arrow-inserter) this mod would not exitst. So special thanks to [Bleb1k](https://mods.factorio.com/user/bleb1k)
 

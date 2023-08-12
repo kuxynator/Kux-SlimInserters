@@ -70,15 +70,25 @@ require("events/on_destroyed_entity")
 require("events/on_player_rotated_entity")
 
 function this.on_init()
+	this.on_debug_mode_changed()
 	PickerDollies.init()
 	global.events = {}
 end
 
-function this.on_load()
-	if(not settings.global["Kux-SlimInserters_runtime-debug-mode"].value) then
+function this.on_debug_mode_changed()
+	if(settings.global["Kux-SlimInserters_runtime-debug-mode"].value and not _G.print_original) then
+		print("Disable console output für Kux-SlimInserters")
+		_G.print_original = _G.print
 		_G.print = function() end
+	elseif(not settings.global["Kux-SlimInserters_runtime-debug-mode"].value and _G.print_original) then
+		_G.print = _G.print_original
+		_G.print_original = nil
+		print("Enable console output für Kux-SlimInserters")
 	end
+end
 
+function this.on_load()
+	this.on_debug_mode_changed()
 	PickerDollies.init()
 
 	local g_events = global.events or {}
@@ -230,12 +240,17 @@ function this.on_gui_closed(evt)
 	
 end
 
+function this.on_runtime_mod_setting_changed(e)
+	if(e.setting=="Kux-SlimInserters_runtime-debug-mode") then this.on_debug_mode_changed() end
+end
+
 script.on_init(this.on_init)
 script.on_load(this.on_load)
 script.on_configuration_changed(this.on_configuration_changed)
 script.on_event(defines.events.on_gui_opened, this.on_gui_opened)
 script.on_event(defines.events.on_gui_closed, this.on_gui_closed)
 script.on_event(defines.events.on_selected_entity_changed, this.on_selected_entity_changed)
+script.on_event(defines.events.on_runtime_mod_setting_changed, this.on_runtime_mod_setting_changed)
 
 -- game.players[1].print(serpent.block {})
 -- game.players[1].print("hoi")

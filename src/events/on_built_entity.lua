@@ -19,7 +19,7 @@ function this.on_built_entity(evt)
 	-- Check if there is already an inserter on the tile
 	local existingEntities = new_entity.surface.find_entities_filtered{position = new_entity.position}
 	local existingInserters={}; for _, ee in ipairs(existingEntities) do
-		print("  ?"..ee.name.." ("..ee.unit_number ..")")
+		print("  ?"..ee.name.." ("..(ee.unit_number or "-")..")")
 		if(ee.name:match("%-slim%-inserter$") and ee.unit_number ~=new_entity.unit_number) then table.insert(existingInserters,ee) end
 	end
 

@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: 2023-08-12
+  Bugfixes:
+    - Fix some crashes in rare cases
+    - Fix Debug-Mode Settings, now you can enable runtime debug-mode again
+---------------------------------------------------------------------------------------------------
 Version: 2.0.0
 Date: 2023-08-05
   Features:
