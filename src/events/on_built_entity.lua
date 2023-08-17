@@ -14,54 +14,54 @@ function this.on_built_entity(evt)
 
 	if(new_entity.name=="entity-ghost") then this.on_built_inserter_ghost(evt);return end
 	if(new_entity.name:match("%-double%-slim%-inserter$")) then this.on_built_double_inserter(evt); return end
-	-- create_arrow(entity.name, entity, entity.direction)
 
 	-- Check if there is already an inserter on the tile
 	local existingEntities = new_entity.surface.find_entities_filtered{position = new_entity.position}
-	local existingInserters={}; for _, ee in ipairs(existingEntities) do
-		print("  ?"..ee.name.." ("..(ee.unit_number or "-")..")")
-		if(ee.name:match("%-slim%-inserter$") and ee.unit_number ~=new_entity.unit_number) then table.insert(existingInserters,ee) end
+	local existingInserters={};
+	for _, ee in ipairs(existingEntities) do
+		local c = "? "; if(ee.unit_number==new_entity.unit_number) then c="* " end
+		print("  "..c..ee.name.." ("..(ee.unit_number or "-")..")")
+		if(ee.type~="inserter") then ;--skip arrows and non inserters
+		elseif(ee.unit_number == new_entity.unit_number) then ; --skip self
+		else table.insert(existingInserters,ee) end
 	end
 
 	if #existingInserters == 0 then
-		print("  empty")
+		print("  on empty tile")
 		this.create_arrow(new_entity)
 	elseif #existingInserters == 1 then
-		print("  existing "..new_entity.name)
+		print("  over existing: "..new_entity.name)
 		local force = new_entity.force
 		local position = new_entity.position;
-		local direction = new_entity.direction;
+		local direction_a = new_entity.direction;
 		local surface = new_entity.surface
-		local prefix_a = new_entity.name:gsub("slim%-inserter$","")
-		local prefix_b = existingInserters[1].name:gsub("slim%-inserter$","")
-		if(prefix_b:match("%-double$")) then
-			-- existing inserter is an double inserter
-			prefix_b = prefix_b:gsub("%-double$","")
-			Entity.deconstruct(new_entity, evt)
-			--TODO replace double inserter
-		else
-			if(prefix_a:match("%-double$")) then
-				-- new inserter is an double inserter
-				prefix_a = prefix_a:gsub("%-double$","")
-				Entity.deconstruct(new_entity, evt)
-				-- TODO
-			else
-				this.remove_arrow(existingInserters[1]);
-				new_entity.destroy()
-				local entity_a = surface.create_entity { name = prefix_a.."slim-inserter_part-a", position = position, direction = direction, fast_replace = true, force = force, spill = false }
-				this.create_arrow(entity_a)
-				local entity_b = surface.create_entity { name = prefix_b.."slim-inserter_part-b", position = position, direction = direction, fast_replace = true, force = force, spill = false }
-				Entity.copy_inserter_properties(existingInserters[1], entity_b)
-				this.create_arrow(entity_b)
-				existingInserters[1].destroy();
-			end
-		end
+		local new_prefix = new_entity.name:gsub("slim%-inserter$","")
+		local existing_prefix = existingInserters[1].name:gsub("slim%-inserter$","")
+		local existing_direction = existingInserters[1].direction;
+
+		this.remove_matching_arrow(existingInserters[1]);
+		new_entity.destroy()
+		local entity_a = surface.create_entity { name = new_prefix.."slim-inserter_part-a", position = position, direction = direction_a, fast_replace = true, force = force, spill = false }
+		this.create_arrow(entity_a)
+		local t = "slim-inserter_part-b"; if (direction_a~=existing_direction) then t="slim-inserter_part-a" end
+		local entity_b = surface.create_entity { name = existing_prefix..t, position = position, direction = existing_direction, fast_replace = true, force = force, spill = false }
+		Entity.copy_inserter_properties(existingInserters[1], entity_b)
+		this.create_arrow(entity_b)
+		existingInserters[1].destroy();
 	elseif #existingInserters >= 2 then
-		print("  full")
-		local surface = new_entity.surface
-		local position = new_entity.position;
-		local name = new_entity.name
-		Entity.deconstruct(new_entity, evt)
+		local existing_prefix = existingInserters[1].name:match("(.-%-)slim%-inserter")
+		if(existing_prefix:match("%-double$")) then
+			print("  over double") -- existing inserter is an double inserter
+			Entity.deconstruct(new_entity, evt) --cancel build
+			--TODO: replace double inserter
+		else
+			print("  over dual") -- existing inserter is an dual inserter (or unknown type!)
+			local surface = new_entity.surface
+			local position = new_entity.position;
+			local name = new_entity.name
+			Entity.deconstruct(new_entity, evt) --cancel build
+			--TODO: replace existing inserter
+		end
 	end
 
 	--- HACK: Kuxynator
@@ -81,11 +81,11 @@ end
 
 function this.on_built_double_inserter(evt)
 	local new_entity = Utils.get_entity[evt.name](evt)
-	print("on_built_double_arrowy")
+	print("on_built_double_inserter")
 
-	local part_ghost=this.find_part_ghost(new_entity)	
+	local part_ghost=this.find_part_ghost(new_entity)
 
-	this.remove_any_other(new_entity)
+	this.remove_any_other(new_entity, evt)
 	this.create_double_part(new_entity, part_ghost)
 	this.create_arrow(new_entity)
 end
@@ -157,15 +157,15 @@ this.find_part_ghost = function(entity)
 	return nil
 end
 
-function this.remove_arrow(inserter)
-	local name = inserter.name
-	if false --[[HACK: feature disabled]] and game.active_mods["bobinserters"] then
-		name = name:gsub("long%-", "")
-		name = name:gsub("stack%-", "")
-	end
-	local arr_list = inserter.surface.find_entities_filtered { position = inserter.position, type = "constant-combinator",name=name.."_arrow" }
-	for _, arr in ipairs(arr_list) do
-		arr.destroy()
+function this.remove_matching_arrow(inserter)
+	local arrow_list = inserter.surface.find_entities_filtered {
+		position  = inserter.position,
+		type      = "constant-combinator",
+		name      = inserter.name.."_arrow",
+		direction = (inserter.direction + 4) % 8 -- matchig arrow is rotated 180°
+	}
+	for _, arrow in ipairs(arrow_list) do
+		arrow.destroy()
 	end
 end
 
@@ -179,7 +179,7 @@ function this.remove_any_other(inserter, e)
 	for _, entity in ipairs(list) do
 		if(entity.unit_number == inserter.unit_number) then ;--skip
 		elseif(entity.name:match("entity-ghost")) then destroy(entity)
-		elseif(entity.name:match("%-slim%-inserter_arr$")) then destroy(entity)
+		elseif(entity.name:match("%-slim%-inserter_arrow$")) then destroy(entity)
 		elseif(entity.name:match("%-double%-slim%-inserter_part$")) then destroy(entity)
 		elseif(entity.name:match("%-slim%-inserter$")) then Entity.deconstruct(entity, e)
 		else print("  ? "..entity.name) end

@@ -1,6 +1,6 @@
 {
   "name": "Kux-SlimInserters",
-  "version": "2.0.1",
+  "version": "2.0.4",
   "title": "Kuxynator's Slim-Inserters",
   "author": "Kuxynator",
   "factorio_version": "1.1",
@@ -8,10 +8,12 @@
     "base >= 1.1",
 	"Kux-CoreLib",
 	"? bobinserters >= 1.1.7",
+	"? Smart_Inserters >= 1.0.1",
+	"(?) Inserter_Config",
     "(?) boblogistics >= 1.1.3",    
     "(?) Krastorio2 >= 1.2.25",
     "(?) PickerDollies >= 1.2.0",
 	"! arrow-inserter"
   ],
-  "description": "<Experimental> A new approach to inserters: they are attached directly to machines, chest and belts. This allows you to build more compact!\n. Do you know Dyson Sphere Program (DSP) then they will look familiar to you."
+  "description": "<Experimental>\nA new approach to inserters: they are attached directly to machines, chest and belts: Build more compact!\nAlso Introducing double- and dual -inserters: Use 2 inserters on one tile and fill 2 lanes simultaneously."
 }

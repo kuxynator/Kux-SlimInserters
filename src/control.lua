@@ -1,8 +1,8 @@
 require("mod")
-require("lib.Entitiy")
+require("lib.Entity")
 require("modules.Utils")
 require("modules.PickerDollies")
-local Version=KuxCoreLib.Version
+local InserterConfiguration=require("modules.InserterConfiguration") --[[@as InserterConfiguration]]
 
 local this = {}
 
@@ -47,10 +47,11 @@ function this.fix_positions(entity)
 end
 
 function this.check_positions(entity)
-	if(game.active_mods["bobinserters"]) then --HACK:
+	if(game.active_mods["bobinserters"] or game.active_mods["Smart_Inserters"]) then --HACK:
 		-- I do not think we need to check this
 		local relPick = this.get_relative_pickup_position(entity)
 		local relDrop = this.get_relative_drop_position(entity)
+		--print("check_positions {"..relPick.x..", "..relPick.y.."} -> {"..relDrop.x..", "..relDrop.y.."}")
 		--print("check_positions {"..relPick.x..", "..relPick.y.."} -> {"..relDrop.x..", "..relDrop.y.."}")
 
 	else
@@ -70,25 +71,29 @@ require("events/on_destroyed_entity")
 require("events/on_player_rotated_entity")
 
 function this.on_init()
-	this.on_debug_mode_changed()
+	this.on_debug_mode_changed("on_init")
 	PickerDollies.init()
 	global.events = {}
 end
 
-function this.on_debug_mode_changed()
-	if(settings.global["Kux-SlimInserters_runtime-debug-mode"].value and not _G.print_original) then
-		print("Disable console output für Kux-SlimInserters")
-		_G.print_original = _G.print
-		_G.print = function() end
-	elseif(not settings.global["Kux-SlimInserters_runtime-debug-mode"].value and _G.print_original) then
+function this.on_debug_mode_changed(event_name)
+	local isLoading=event_name=="on_init" or event_name=="on_load"
+	local isDebugMode = settings.global["Kux-SlimInserters_runtime-debug-mode"].value
+	if(isLoading and isDebugMode ) then
+		print("Enable console output for Kux-SlimInserters")
+	elseif(isDebugMode and _G.print_original) then
 		_G.print = _G.print_original
 		_G.print_original = nil
-		print("Enable console output für Kux-SlimInserters")
+		print("Enable console output for Kux-SlimInserters")
+	elseif(not isDebugMode and not _G.print_original) then
+		print("Disable console output for Kux-SlimInserters")
+		_G.print_original = _G.print
+		_G.print = function() end
 	end
 end
 
 function this.on_load()
-	this.on_debug_mode_changed()
+	this.on_debug_mode_changed("on_load")
 	PickerDollies.init()
 
 	local g_events = global.events or {}
@@ -108,7 +113,7 @@ function this.on_load()
 end
 
 function this.on_configuration_changed(evt)
-	Utils.reload_recipes()
+	Utils.reload_recipes("on_configuration_changed")
 	global.events = global.events or {}
 
 	if(settings.startup[mod.prefix.."debug-mode"].value and not global.events.on_nth_tick_1) then
@@ -133,7 +138,7 @@ end
 
 function this.on_selected_entity_changed(evt)
 	local entity = evt.last_entity
-	if entity and entity.type == "inserter" and string.match(entity.name, "%-slim%-inserter$") then
+	if entity and entity.type == "inserter" and string.match(entity.name, "%-slim%-inserter") then
 		this.check_positions(entity)
 	end
 end
@@ -203,21 +208,23 @@ end
 
 function this.on_gui_closed(evt)
 	local entity = evt.entity
-	if(not game.active_mods["bobinserters"]) then return end
-	if(Version.compare(game.active_mods["bobinserters"], "1.1.8")>=0) then return end
-	if not entity or entity.type ~= "inserter" or not string.match(entity.name, "%-slim%-inserter$") then return end
-	-- temporary workaround for bobinserters 1.1.7
+	if not entity or entity.type ~= "inserter" or not string.match(entity.name, "%-slim%-inserter") then return end
+	if(not InserterConfiguration.is_workaround_required()) then return end
+	--- NOTE: _relDrop, _relPick could be nil, if the game was loaded while the UI was open.
+	if(not _relDrop or not _relPick) then return end
+
+	-- HACK: temporary workaround for bobinserters 1.1.7 and other configuration mods
 
 	local p = this.get_relative_pickup_position(entity)
 	local d = this.get_relative_drop_position(entity)
-	local look = (entity.orientation * 4)
+	local look = (entity.orientation * 4 )
 	print("on_gui_closed: {"..p.x..", "..p.y.."} => {"..d.x..", "..d.y.."} look="..look)
 
 	local x,y = d.x, d.y
-	local a,b
+
 	if(_relDrop.x ~= x or _relDrop.y ~= y) then
 		x=Q(x); y=Q(y)
-		-- a,b = get_directional_position(x,y)
+		-- local a,b = get_directional_position(x,y)
 		-- if    (look==0) then x= b; y= a
 		-- elseif(look==1) then x=-a; y= b
 		-- elseif(look==2) then x= b; y=-a
@@ -235,9 +242,6 @@ function this.on_gui_closed(evt)
 		else                 x=-a; y= 0 end
 		entity.pickup_position = { entity.position.x + x, entity.position.y + y }
 	end
-
-	--entity.operable = true
-	
 end
 
 function this.on_runtime_mod_setting_changed(e)

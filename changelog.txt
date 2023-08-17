@@ -1,4 +1,25 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.4
+Date: 2023-08-17
+  Features:
+    - Full configurable with Smart_Inserters mod. Many thanks to Wip-Sama.
+  Bugfixes:
+    - Fix some crashes
+---------------------------------------------------------------------------------------------------
+Version: 2.0.3
+Date: 2023-08-13
+  Features:
+    - allow opposite direction for dual-inserter
+  Changes:
+    - disable workaround for Smart_Inserters, support is comming soon
+  Bugfixes:
+    - Fix some crashes
+---------------------------------------------------------------------------------------------------
+Version: 2.0.2
+Date: 2023-08-12
+  Changes:
+    - support Smart_Inserters, Inserter_Config as alternative to bobinserters
+---------------------------------------------------------------------------------------------------
 Version: 2.0.1
 Date: 2023-08-12
   Bugfixes:

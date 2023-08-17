@@ -505,6 +505,7 @@ function Entity.deconstruct(entity, evt, destroy_options)
 	end
 
 	-- drop item or back to inventory
+	evt = evt or {}
 	evt.position = position
 	return Entity.give_back(item_stack, evt)
 end
