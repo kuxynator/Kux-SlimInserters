@@ -1,7 +1,7 @@
 require("modules/Utils")
 EntityBuilder = {}
 
-local platform_picture_path = mod.path.."graphics/"..settings.startup["slim-inserter-platform-picture"].value..".png"
+local platform_picture_path = mod.path.."graphics/arrow.png"
 local icon=mod.path.."graphics/arrow.png"
 
 local function constants(eBase, tint, energy)

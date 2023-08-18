@@ -531,11 +531,18 @@ function Entity.give_back(item_stack, evt)
 			return true
 		end
 	end
-	--TODO: user player position, if evt.position is nil
-	surface.spill_item_stack(evt.position, {name = item_stack.name, count = 1}, true)
-	print("  + ground "..item_stack.name)
-	--TODO: do not put on a belt
-	return true
+	if(evt) then
+		local entity = Utils.get_entity[evt.name](evt)
+		Utils.get_entity[evt.name](evt)
+		--TODO: user player position, if evt.position is nil
+		entity.surface.spill_item_stack(evt.position, {name = item_stack.name, count = 1}, true)
+		print("  + ground "..item_stack.name)
+		--TODO: do not put on a belt
+		return true
+	end
+
+	return false
+	
 end
 
 function Entity.copy_inserter_properties(template, entity)

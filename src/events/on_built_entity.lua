@@ -7,7 +7,7 @@ local this = {}
 -- script_raised_revive
 function this.on_built_entity(evt)
 	local new_entity = Utils.get_entity[evt.name](evt)
-	print("on_built_entity "..new_entity.name.." ("..new_entity.unit_number ..") ["..Utils.evt_displaynames[evt.name].."]")
+	print("on_built_entity "..new_entity.name.." ("..(new_entity.unit_number or "-")..") ["..Utils.evt_displaynames[evt.name].."]")
 	if(new_entity.name=="entity-ghost") then
 		if(new_entity.prototype.name:match("%-slim%-inserter$")) then print("  skip: not an slim-inserter ghost"); return end
 	elseif not string.match(new_entity.name, "%-slim%-inserter$") then print("  skip: not an slim-inserter"); return end
@@ -28,6 +28,7 @@ function this.on_built_entity(evt)
 
 	if #existingInserters == 0 then
 		print("  on empty tile")
+		this.remove_remnants(new_entity)
 		this.create_arrow(new_entity)
 	elseif #existingInserters == 1 then
 		print("  over existing: "..new_entity.name)
@@ -169,6 +170,14 @@ function this.remove_matching_arrow(inserter)
 	end
 end
 
+function this.remove_remnants(inserter)
+	local list = inserter.surface.find_entities_filtered { position = inserter.position, name = "inserter-remnants" }
+	for _, entity in ipairs(list) do
+		print("  x "..entity.name)
+		entity.destroy()
+	end
+end
+
 function this.remove_any_other(inserter, e)
 	local function destroy(entity)
 		print("  x "..entity.name)
@@ -178,7 +187,8 @@ function this.remove_any_other(inserter, e)
 	local list = inserter.surface.find_entities_filtered { position = inserter.position }
 	for _, entity in ipairs(list) do
 		if(entity.unit_number == inserter.unit_number) then ;--skip
-		elseif(entity.name:match("entity-ghost")) then destroy(entity)
+		elseif(entity.name=="entity-ghost") then destroy(entity)
+		elseif(entity.name=="inserter-remnants") then destroy(entity)
 		elseif(entity.name:match("%-slim%-inserter_arrow$")) then destroy(entity)
 		elseif(entity.name:match("%-double%-slim%-inserter_part$")) then destroy(entity)
 		elseif(entity.name:match("%-slim%-inserter$")) then Entity.deconstruct(entity, e)

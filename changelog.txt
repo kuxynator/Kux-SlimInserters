@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.5
+Date: 2023-08-18
+  Changes:
+    - Remove settings Platform Picture
+    - make Debug settings translatable
+  Bugfixes:
+    - Fix remove remnants
+    - Fix BUG:1 BUG:2 (https://mods.factorio.com/mod/Kux-SlimInserters/discussion)
+---------------------------------------------------------------------------------------------------
 Version: 2.0.4
 Date: 2023-08-17
   Features:
