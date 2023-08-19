@@ -96,6 +96,11 @@ function this.on_built_inserter_ghost(evt)
 	print("  ghost: "..new_entity.ghost_name)
 	--print("  "..Entity.dump(new_entity))
 
+	if(new_entity.ghost_name:match("%-slim%-inserter_part%-[ab]$")) then
+		new_entity.destroy()
+		return
+	end
+
 	--if(new_entity.ghost_name:match("%-double%-slim%-inserter$")) then return end --nothing to do
 
 	-- local prefix = new_entity.ghost_name:match("^(.-%-)slim%-inserter_part%-[ab]$")

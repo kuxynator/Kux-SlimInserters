@@ -51,3 +51,4 @@ This does not require any new inserter types, but the tile can be occupied by se
 
 Without [Arow Inserter](https://mods.factorio.com/mod/arrow-inserter) this mod would not exitst. So special thanks to [Bleb1k](https://mods.factorio.com/user/bleb1k)
 
+Full configuration GUI for ALL inserters [Smart Inserters](https://mods.factorio.com/mod/Smart_Inserters) by Wip-Sama.
