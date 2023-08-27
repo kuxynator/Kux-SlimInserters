@@ -1,6 +1,20 @@
 require("modules/Utils")
 local this = {}
 
+local function dump_entities(surface, pos)
+	xpcall(function()
+		print("  entities at "..pos.x..","..pos.y.." ("..surface.name..")")
+		local entites = surface.find_entities_filtered { position = pos}
+		for _, entity in ipairs(entites) do
+			local name = entity.name
+			if(name=="entity-ghost") then name=name.." ("..entity.ghost_name.."/"..entity.ghost_type.. ")"
+			else name=name.." ("..entity.type..")" end
+			local valid = entity.valid and "" or " [not valid]"
+			print("    ? "..name..valid.." ("..(entity.unit_number or "")..")")
+		end
+	end, function(err) print("  error: "..err) end)
+end
+
 -- on_built_entity
 -- on_robot_built_entity
 -- script_raised_built
@@ -9,9 +23,11 @@ function this.on_built_entity(evt)
 	local new_entity = Utils.get_entity[evt.name](evt)
 	print("on_built_entity "..new_entity.name.." ("..(new_entity.unit_number or "-")..") ["..Utils.evt_displaynames[evt.name].."]")
 	if(new_entity.name=="entity-ghost") then
-		if(new_entity.prototype.name:match("%-slim%-inserter$")) then print("  skip: not an slim-inserter ghost"); return end
-	elseif not string.match(new_entity.name, "%-slim%-inserter$") then print("  skip: not an slim-inserter"); return end
+		if(not new_entity.prototype.name:match("%-slim%-inserter")) then --[[print("  skip: not an slim-inserter ghost");]] return end
+	elseif not string.match(new_entity.name, "%-slim%-inserter") then --[[print("  skip: not an slim-inserter");]] return end
 
+	dump_entities(new_entity.surface, new_entity.position)
+	
 	if(new_entity.name=="entity-ghost") then this.on_built_inserter_ghost(evt);return end
 	if(new_entity.name:match("%-double%-slim%-inserter$")) then this.on_built_double_inserter(evt); return end
 
@@ -84,11 +100,13 @@ function this.on_built_double_inserter(evt)
 	local new_entity = Utils.get_entity[evt.name](evt)
 	print("on_built_double_inserter")
 
-	local part_ghost=this.find_part_ghost(new_entity)
+	local part=this.find_part_ghost(new_entity) or this.find_part(new_entity)
 
-	this.remove_any_other(new_entity, evt)
-	this.create_double_part(new_entity, part_ghost)
+	this.remove_any_other({new_entity,part}, evt)
+	this.create_double_part(new_entity, part)
 	this.create_arrow(new_entity)
+
+	dump_entities(new_entity.surface, new_entity.position)
 end
 
 function this.on_built_inserter_ghost(evt)
@@ -116,8 +134,8 @@ this.create_arrow = Utils.create_arrow
 
 ---Creates a new inserter part, using the properties from the ghost if specified.
 ---@param inserter LuaEntity
----@param ghost LuaEntity?
-function this.create_double_part(inserter, ghost)
+---@param part_template LuaEntity?
+function this.create_double_part(inserter, part_template)
 	local name = inserter.name
 	---@diagnostic disable-next-line: missing-fields
 	local part = inserter.surface.create_entity {
@@ -127,9 +145,9 @@ function this.create_double_part(inserter, ghost)
 		force     = inserter.force,
 		type      = "inserter"
 	}
-	if(ghost) then
-		Entity.copy_inserter_properties(ghost, part)
-		ghost.destroy()
+	if(part_template) then
+		Entity.copy_inserter_properties(part_template, part)
+		part_template.destroy()
 	end
 	return part
 end
@@ -155,10 +173,25 @@ function this.create_slim_inserter_ghost(new_entity)
 	end
 end
 
-this.find_part_ghost = function(entity)
+
+---@param entity LuaEntity
+---@return LuaEntity?
+function this.find_part_ghost(entity)
+	assert(entity.name:match("double%-slim%-inserter$"), "not a double slim-inserter. "..entity.name)
 	local list = entity.surface.find_entities_filtered { position = entity.position, name = "entity-ghost" }
 	for _, ghost in ipairs(list) do
-		if(ghost.ghost_name==entity.name.."_part") then return ghost end
+		if(ghost.valid and ghost.ghost_name==entity.name.."_part") then return ghost end
+	end
+	return nil
+end
+
+---@param entity LuaEntity
+---@return LuaEntity?
+function this.find_part(entity)
+	assert(entity.name:match("double%-slim%-inserter$"), "not a double slim-inserter. "..entity.name)
+	local list = entity.surface.find_entities_filtered { position = entity.position, name = entity.name.."_part" }
+	for _, e in ipairs(list) do
+		if(e.valid) then return e end
 	end
 	return nil
 end
@@ -184,14 +217,20 @@ function this.remove_remnants(inserter)
 end
 
 function this.remove_any_other(inserter, e)
+	if(type(inserter)=="string") then inserter={inserter} end
+	assert(type(inserter)=="table", "Invalid Argumen. 'inserter' must be a string or a string-array")
+
 	local function destroy(entity)
 		print("  x "..entity.name)
 		entity.destroy()
 	end
 
-	local list = inserter.surface.find_entities_filtered { position = inserter.position }
+	local unit_numbers_to_keep = {}
+	for _, entity in ipairs(inserter) do unit_numbers_to_keep[entity.unit_number]=true end
+
+	local list = inserter[1].surface.find_entities_filtered { position = inserter[1].position }
 	for _, entity in ipairs(list) do
-		if(entity.unit_number == inserter.unit_number) then ;--skip
+		if(unit_numbers_to_keep[entity.unit_number]) then ;--skip
 		elseif(entity.name=="entity-ghost") then destroy(entity)
 		elseif(entity.name=="inserter-remnants") then destroy(entity)
 		elseif(entity.name:match("%-slim%-inserter_arrow$")) then destroy(entity)
