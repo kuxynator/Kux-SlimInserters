@@ -94,45 +94,14 @@ end
 
 function this.on_load()
 	this.on_debug_mode_changed("on_load")
-	PickerDollies.init()
-
-	local g_events = global.events or {}
-	if(g_events.on_nth_tick_1) then script.on_nth_tick(1, this.on_nth_tick_1) end
-	for key, value in pairs(global.events or {}) do
-		if(type(value)=="table") then
-			script.on_event(value[1], value[2])
-		elseif(type(value)=="string" or type(value)=="number") then
-			if(type(this[value])=="function") then
-				script.on_event(key, this[value])
-			else
-				local dummy = function() end
-				script.on_event(key, dummy)
-			end
-		end
-	end
+	PickerDollies.init()	
 end
 
 function this.on_configuration_changed(evt)
 	Utils.reload_recipes("on_configuration_changed")
-	global.events = global.events or {}
-
-	if(settings.startup[mod.prefix.."debug-mode"].value and not global.events.on_nth_tick_1) then
-		script.on_nth_tick(1, this.on_nth_tick_1)
-		global.events.on_nth_tick_1 = true
-	elseif(not settings.startup[mod.prefix.."debug-mode"].value and global.events.on_nth_tick_1) then
-		script.on_nth_tick(1, nil)
-		global.events.on_nth_tick_1 = nil
-	end
 end
 
-function this.on_nth_tick_1(evt)
-	local g_events = global.events or {}
-	g_events.on_nth_tick_1 = nil
-	script.on_nth_tick(1, nil)
-	this.on_loaded()
-end
-
-function this.on_loaded()
+function this.on_loaded()	
 	Utils.reload_recipes()
 end
 
@@ -248,13 +217,14 @@ function this.on_runtime_mod_setting_changed(e)
 	if(e.setting=="Kux-SlimInserters_runtime-debug-mode") then this.on_debug_mode_changed() end
 end
 
-script.on_init(this.on_init)
-script.on_load(this.on_load)
-script.on_configuration_changed(this.on_configuration_changed)
-script.on_event(defines.events.on_gui_opened, this.on_gui_opened)
-script.on_event(defines.events.on_gui_closed, this.on_gui_closed)
-script.on_event(defines.events.on_selected_entity_changed, this.on_selected_entity_changed)
-script.on_event(defines.events.on_runtime_mod_setting_changed, this.on_runtime_mod_setting_changed)
+Events.on_init(this.on_init)
+Events.on_load(this.on_load)
+Events.on_loaded(this.on_loaded)
+Events.on_configuration_changed(this.on_configuration_changed)
+Events.on_event(defines.events.on_gui_opened, this.on_gui_opened)
+Events.on_event(defines.events.on_gui_closed, this.on_gui_closed)
+Events.on_event(defines.events.on_selected_entity_changed, this.on_selected_entity_changed)
+Events.on_event(defines.events.on_runtime_mod_setting_changed, this.on_runtime_mod_setting_changed)
 
 -- game.players[1].print(serpent.block {})
 -- game.players[1].print("hoi")
