@@ -3,48 +3,51 @@ EntityBuilder = {}
 
 local platform_picture_path = mod.path.."graphics/arrow.png"
 local icon=mod.path.."graphics/arrow.png"
-
-local function constants(eBase, tint, energy)
-	eBase.icons = { {
+---comment
+---@param entity table InserterPrototype
+---@param tint Color
+---@param energy table
+local function constants(entity, tint, energy)
+	entity.icons = { {
 		icon = icon,
 		icon_size = 64,
 		tint = tint
 	} }
-	eBase.selection_priority = 255
-	eBase.rotation_speed = eBase.rotation_speed / 100 * 120 -- HACK: de-nerf
-	eBase.energy_per_rotation = energy.active or eBase.energy_per_rotation
-	eBase.energy_source.drain = energy.passive or eBase.energy_source.drain
-	eBase.allow_custom_vectors = true -- HACK: allow bobinserters configuration
-	eBase.pickup_position = { 0, -0.5 }
-	eBase.insert_position = { -0.001, 0.5 } --HACK: { 0, 0.35 } 
-	eBase.collision_box = nil --HACK: { { -0.25, -0.01 }, { 0.25, 0.01 } }
-	eBase.selection_box = { { -0.4, -0.2 }, { 0.4, 0.2 } }
-	eBase.collision_mask = { "item-layer", "object-layer", "player-layer", }
-	eBase.flags = { "placeable-neutral", "placeable-player", "player-creation" }
-	eBase.fast_replaceable_group = "slim-inserter"
-	eBase.next_upgrade = ""
-	eBase.protected_from_tile_building = false
-	eBase.tile_height = 0
-	eBase.tile_width = 1
-	eBase.draw_inserter_arrow = true -- HACK: (false)
-	eBase.draw_held_item = false --HACK:
-	eBase.chases_belt_items = false
-	eBase.hand_size = 0.05
-	eBase.hand_base_picture = Utils.empty_sheet
-	eBase.hand_base_shadow = Utils.empty_sheet
-	eBase.hand_closed_picture = Utils.empty_sheet
-	eBase.hand_closed_shadow = Utils.empty_sheet
-	eBase.hand_open_picture = Utils.empty_sheet
-	eBase.hand_open_shadow = Utils.empty_sheet
-	eBase.platform_picture.sheet.scale = 0.5
-	eBase.platform_picture.sheet.size = 64
-	eBase.platform_picture.sheet.shift = { 0, 0 }
-	eBase.platform_picture.sheet.filename = platform_picture_path
-	eBase.platform_picture.sheet.tint = tint
-	eBase.platform_picture.sheet.hr_version.size = 64
-	eBase.platform_picture.sheet.hr_version.shift = { 0, 0 }
-	eBase.platform_picture.sheet.hr_version.tint = tint
-	eBase.platform_picture.sheet.hr_version.filename = platform_picture_path
+	entity.selection_priority = 255
+	entity.rotation_speed = entity.rotation_speed / 100 * 120 -- HACK: de-nerf
+	entity.energy_per_rotation = energy.active or entity.energy_per_rotation
+	entity.energy_source.drain = energy.passive or entity.energy_source.drain
+	entity.allow_custom_vectors = true -- HACK: allow bobinserters configuration
+	entity.pickup_position = { 0, -0.5 }
+	entity.insert_position = { -0.001, 0.5 } --HACK: { 0, 0.35 } 
+	entity.collision_box = nil --HACK: { { -0.25, -0.01 }, { 0.25, 0.01 } }
+	entity.selection_box = { { -0.4, -0.2 }, { 0.4, 0.2 } }
+	entity.collision_mask = { "item-layer", "object-layer", "player-layer", }
+	entity.flags = { "placeable-neutral", "placeable-player", "player-creation" }
+	entity.fast_replaceable_group = "slim-inserter"
+	entity.next_upgrade = ""
+	entity.protected_from_tile_building = false
+	entity.tile_height = 0
+	entity.tile_width = 1
+	entity.draw_inserter_arrow = true -- HACK: (false)
+	entity.draw_held_item = false --HACK:
+	entity.chases_belt_items = false
+	entity.hand_size = 0.05
+	entity.hand_base_picture = Utils.empty_sheet
+	entity.hand_base_shadow = Utils.empty_sheet
+	entity.hand_closed_picture = Utils.empty_sheet
+	entity.hand_closed_shadow = Utils.empty_sheet
+	entity.hand_open_picture = Utils.empty_sheet
+	entity.hand_open_shadow = Utils.empty_sheet
+	entity.platform_picture.sheet.scale = 0.5
+	entity.platform_picture.sheet.size = 64
+	entity.platform_picture.sheet.shift = { 0, 0 }
+	entity.platform_picture.sheet.filename = platform_picture_path
+	entity.platform_picture.sheet.tint = tint
+	entity.platform_picture.sheet.hr_version.size = 64
+	entity.platform_picture.sheet.hr_version.shift = { 0, 0 }
+	entity.platform_picture.sheet.hr_version.tint = tint
+	entity.platform_picture.sheet.hr_version.filename = platform_picture_path
 	--HACK: disabled feature
 	-- if settings.startup["add-one-filter-slot"].value then
 	-- 	eBase.filter_count = 1
@@ -86,23 +89,6 @@ function EntityBuilder.create_entity(preset)
 	entity.localised_name = { "entity-name." .. entity.name }
 
 	if mods["Squeak Through"] then entity.collision_mask[3] = nil end --TODO: revise [3]
-
-	--HACK: disable extra inserters 
-	if false and mods["bobinserters"] then
-		entity.placeable_by = { item = entity.name, count = 1 }
-		local tmp = table.deepcopy(entity)
-		tag_works(tmp, { long = true })
-		local_name(tmp)
-		data:extend { tmp }
-		tmp = table.deepcopy(entity)
-		tag_works(tmp, { stack = true })
-		local_name(tmp)
-		data:extend { tmp }
-		tmp = table.deepcopy(entity)
-		tag_works(tmp, { long = true, stack = true })
-		local_name(tmp)
-		data:extend { tmp }
-	end
 
 	tag_works(entity, preset.tags)
 

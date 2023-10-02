@@ -1,6 +1,22 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.10
+Date: 2023-10-02
+  Changes:
+    - some balancing
+    - alternate recipes (per settings)
+    - build in some bugs so you can report it ;-)
+  Bugfixes:
+    - FIX rotating slim loader
+---------------------------------------------------------------------------------------------------
+Version: 2.0.9
+Date: 2023-09-16
+  Features:
+    - Slim loaders
+  Bugfixes:
+    - many Bugfixes
+---------------------------------------------------------------------------------------------------
 Version: 2.0.8
-Date: 2023-08-20
+Date: 2023-08-30
   Bugfixes:
     - FIX BUX:5 (https://mods.factorio.com/mod/Kux-SlimInserters/discussion/64ee2f5b299a6707d9febb02)
   Changes:

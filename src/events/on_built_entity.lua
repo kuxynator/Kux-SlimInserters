@@ -1,5 +1,8 @@
 require("modules/Utils")
+---@class on_built_entity
 local this = {}
+
+local InserterUtils = require("modules/InserterUtils") --[[@as InserterUtils]]
 
 local function dump_entities(surface, pos)
 	xpcall(function()
@@ -21,21 +24,25 @@ end
 -- script_raised_revive
 function this.on_built_entity(evt)
 	local new_entity = Utils.get_entity[evt.name](evt)
-	trace("on_built_entity "..new_entity.name.." ("..(new_entity.unit_number or "-")..") ["..Utils.evt_displaynames[evt.name].."]")
+	--trace("on_built_entity ", function() return trace.formatEntityEvent(evt) end)
 	if(new_entity.name=="entity-ghost") then
 		if(not new_entity.prototype.name:match("%-slim%-inserter")) then --[[trace.append("  skip: not an slim-inserter ghost");]] return end
 	elseif not string.match(new_entity.name, "%-slim%-inserter") then --[[trace.append("  skip: not an slim-inserter");]] return end
 
-	xpcall(function()
+	if(evt.name=="script_raised_built" or evt.name=="script_raised_revive") then return end --TODO: when do we need this?
+
+	-- xpcall(function()
 		dump_entities(new_entity.surface, new_entity.position)
-	
+
 		if(new_entity.name=="entity-ghost") then this.on_built_inserter_ghost(evt, new_entity);return end
 		if(new_entity.name:match("%-double%-slim%-inserter$")) then this.on_built_double_inserter(evt, new_entity); return end
+		if(new_entity.name:match("%-loader%-slim%-inserter$")) then this.on_built_loader_inserter(evt, new_entity); return end
 		this.on_built_slim_inserter(evt, new_entity)
 
-	end, function(err)
-		trace.append("  error: on_built_entity failed. "..err)
-	end)
+	-- end, function(err)
+	-- 	trace.append("  error: on_built_entity failed.\n" .. debug.traceback(err,2))
+	-- 	ErrorHandler.createReport(evt, err, {mod = mod.name, point_to={type="entity", entity = new_entity}})
+	-- end)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -52,7 +59,7 @@ function this.on_built_slim_inserter(evt, new_entity)
 		else table.insert(existingInserters,ee) end
 	end
 
-	--TODO bots could set slim-inserter_part-a/b from blueprint
+	--TODO: bots could set slim-inserter_part-a/b from blueprint
 
 	if #existingInserters == 0 then
 		trace.append("  on empty tile")
@@ -111,6 +118,25 @@ function this.on_built_double_inserter(evt, new_entity)
 	dump_entities(new_entity.surface, new_entity.position)
 end
 
+function this.on_built_loader_inserter(evt, new_entity)
+	trace("on_built_loader_inserter ")
+
+	if(evt.name=="script_raised_built" or evt.name=="script_raised_revive") then
+		--TODO: not implemented
+		return
+	end
+	local partghost=this.find_loaderpart_ghost(new_entity) or this.find_loaderpart(new_entity)
+
+	--trace.append(InserterEntity.dump_circuit_behavior(new_entity))
+
+	this.remove_any_other({new_entity,partghost}, evt)
+	local part = this.create_loader_part(new_entity, partghost)
+	this.create_arrow(new_entity)	
+	InserterUtils.connect_loaderpart(new_entity, part)
+
+	--dump_entities(new_entity.surface, new_entity.position)
+end
+
 function this.on_built_inserter_ghost(evt, new_entity)
 	trace.append("  ghost: "..new_entity.ghost_name)
 	--trace.append("  "..Entity.dump(new_entity))
@@ -158,6 +184,26 @@ function this.create_double_part(inserter, part_template)
 	return part
 end
 
+---Creates a new inserter part, using the properties from the ghost if specified.
+---@param inserter LuaEntity
+---@param part_template LuaEntity?
+function this.create_loader_part(inserter, part_template)
+	local name = inserter.name
+	---@diagnostic disable-next-line: missing-fields
+	local part = inserter.surface.create_entity {
+		name      = name .. "_loaderpart",
+		position  = inserter.position,
+		direction = inserter.direction,
+		force     = inserter.force,
+		type      = "inserter"
+	}
+	if(part_template) then
+		Entity.copy_inserter_properties(part_template, part)
+		part_template.destroy()
+	end
+	return part
+end
+
 function this.create_slim_inserter_ghost(new_entity)
 	local prefix = new_entity.ghost_name:match("^(.-%-)slim%-inserter_part%-[ab]$")
 	if(prefix) then
@@ -193,9 +239,31 @@ end
 
 ---@param entity LuaEntity
 ---@return LuaEntity?
+function this.find_loaderpart_ghost(entity)
+	assert(entity.name:match("loader%-slim%-inserter$"), "not a loader slim-inserter. "..entity.name)
+	local list = entity.surface.find_entities_filtered { position = entity.position, name = "entity-ghost" }
+	for _, ghost in ipairs(list) do
+		if(ghost.valid and ghost.ghost_name==entity.name.."_loaderpart") then return ghost end
+	end
+	return nil
+end
+
+---@param entity LuaEntity
+---@return LuaEntity?
 function this.find_part(entity)
 	assert(entity.name:match("double%-slim%-inserter$"), "not a double slim-inserter. "..entity.name)
 	local list = entity.surface.find_entities_filtered { position = entity.position, name = entity.name.."_part" }
+	for _, e in ipairs(list) do
+		if(e.valid) then return e end
+	end
+	return nil
+end
+
+---@param entity LuaEntity
+---@return LuaEntity?
+function this.find_loaderpart(entity)
+	assert(entity.name:match("loader%-slim%-inserter$"), "not a loader slim-inserter. "..entity.name)
+	local list = entity.surface.find_entities_filtered { position = entity.position, name = entity.name.."_loaderpart" }
 	for _, e in ipairs(list) do
 		if(e.valid) then return e end
 	end

@@ -52,9 +52,11 @@ function this.on_destroyed_entity(evt)
 			if(name=="entity-ghost") then name=name.." ("..entity.ghost_name.."/"..entity.ghost_type.. ")"
 			else name=name.." ("..entity.type..")" end
 			local valid = entity.valid and "" or " [not valid]"
-			print("  ? "..name..valid.." ("..(entity.unit_number or "")..")")
+			print("  o "..name..valid.." ("..(entity.unit_number or "")..")")
 		end
 	end)
+
+	local player = evt.player_index and game.players[evt.player_index] or nil
 
 	if(evt.name == defines.events.on_entity_died) then return end
 
@@ -62,29 +64,33 @@ function this.on_destroyed_entity(evt)
 	destroy_matching_arrow(old_entity)
 
 	if(old_entity.name:match("%-double%-slim%-inserter_part$")) then		
-		destroy_matching_arrow(old_entity)
 		local double_name = old_entity.name:match("^(.-%-slim%-inserter)_part$")
 		destroy(old_entity.surface, old_entity.position, double_name)
 		return
 	end
 	if(old_entity.name:match("%-double%-slim%-inserter$")) then
-		destroy_matching_arrow(old_entity)
 		destroy(old_entity.surface, old_entity.position, old_entity.name.."_part")
 		return
 	end
 
+	if(old_entity.name:match("%-loader%-slim%-inserter$")) then
+		destroy(old_entity.surface, old_entity.position, old_entity.name.."_loaderpart")
+		return
+	end
+
+	local mine_both = not player or player.mod_settings[mod.prefix.. "dual-slim-inserter-mine-both"].value
 	local double_part_name = old_entity.name:match("^(.-%-slim%-inserter)_part$")
 	local dual_a_name = old_entity.name:match("^(.-%-slim%-inserter)_part%-a$")
 	local dual_b_name = old_entity.name:match("^(.-%-slim%-inserter)_part%-b$")
 	if(double_part_name) then -- is double inserter part
 		destroy(old_entity.surface, old_entity.position, double_part_name)
-	elseif(dual_a_name) then -- is dual inserter part a
+	elseif(dual_a_name and mine_both) then -- is dual inserter part a
 		deconstruct(evt, old_entity.surface, old_entity.position, dual_a_name.."_part-b")
-	elseif(dual_b_name) then -- is dual inserter part b
+	elseif(dual_b_name and mine_both) then -- is dual inserter part b
 		deconstruct(evt, old_entity.surface, old_entity.position, dual_b_name.."_part-a")
 	else -- is double inserter
 		destroy(old_entity.surface, old_entity.position, old_entity.name.."_part")
-	end	
+	end
 	
 	--TODO: support multiple inserters of same type?
 end

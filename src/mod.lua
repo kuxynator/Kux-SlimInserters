@@ -6,7 +6,8 @@ _G.mod={
 	prefix="Kux-SlimInserters_",
 }
 
-Trace = KuxCoreLib.Trace.asGlobal()
 Events = KuxCoreLib.Events.asGlobal()
+ErrorHandler = KuxCoreLib.ErrorHandler.asGlobal()
+Trace = KuxCoreLib.Trace.asGlobal()
 
 return mod

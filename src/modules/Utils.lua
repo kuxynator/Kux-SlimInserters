@@ -1,4 +1,7 @@
+---@class Utils : util
 Utils = {}
+require("__core__/lualib/util.lua")
+setmetatable(Utils, {__index=util})
 
 Utils.empty_sheet = {
 	filename = "__core__/graphics/empty.png",
@@ -13,8 +16,8 @@ Utils.empty_sheet = {
 	}
 }
 Utils.known_prefixes={"basic", "fast"}
-Utils.known_tags={"stack", "long", "filter", "double"}
-Utils.known_suffixes={"arrow", "part", "part-a","part-b"}
+Utils.known_tags={"stack", "long", "filter", "double", "loader"}
+Utils.known_suffixes={"arrow", "part", "part-a", "part-b", "loaderpart"}
 
 function Utils.create_name(preset, suffix)
 	local name = "slim-inserter"
@@ -125,17 +128,13 @@ end
 
 function Utils.create_arrow(inserter)
 	local name = inserter.name
-	if false --[[HACK: feature disabled]] and game.active_mods["bobinserters"] then
-		name = name:gsub("long%-", "")
-		name = name:gsub("stack%-", "")
-	end
-	local arr = inserter.surface.create_entity {
+	local arrow = inserter.surface.create_entity {
 		name      = name .. "_arrow",
 		position  = inserter.position,
 		direction = (inserter.direction + 4) % 8,
 		force     = inserter.force,
 		type      = "constant-combinator"
 	}
-	arr.destructible = false
-	return arr
+	arrow.destructible = false
+	return arrow
 end

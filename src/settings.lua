@@ -1,18 +1,32 @@
 require("mod")
+local extend = KuxCoreLib.SettingsData.extend
+extend.prefix = mod.prefix
 
-data:extend {
-	{
-		type = "bool-setting",
-		name = "Kux-SlimInserters_debug-mode",
-		setting_type = 'startup',
-		default_value = false,
-	},
-	{
-		type = "bool-setting",
-		name = "Kux-SlimInserters_runtime-debug-mode",
-		setting_type = 'runtime-global',
-		default_value = false,
-		localised_name = "Debug Mode",
-		localised_description = "If enabled some exta code is executed to help debugging. e.g. print information to console/log. This mode affects the performance somewhat and should be activated only when needed",
-	},
-}
+---@type KuxCorelib.Extend
+local x
+
+x = extend{"startup", "a"}
+x:bool{"single-slim-inserter-enable", true}
+
+x = extend{"startup", "b"}
+x:bool{"double-slim-inserter-enable", true}
+
+x = extend{"startup", "c"}
+x:bool{"dual-slim-inserter-enable", true}
+
+
+x = extend{"startup", "d"}
+x:bool{"loader-slim-inserter-enable", true}
+
+x = extend{"startup", "e"}
+x:bool{"consume-vanilla-inserter", false}
+
+x = extend{"startup", "z"}
+x:bool{"debug-mode", false}
+
+x = extend{"runtime-global", "z"}
+x:bool{"runtime-debug-mode", false}
+
+x = extend{"runtime-user", "a"}
+x:bool{"dual-slim-inserter-mine-both", true}
+

@@ -1,0 +1,100 @@
+--https://lua-api.factorio.com/latest/classes/LuaControl.html
+
+---@class Control
+local Control = {}
+local LuaObjectUtil = require("lib/LuaObjectUtil")
+
+Control.members = {
+	surface = {canRead=true, canWrite=false},
+	surface_index = {canRead=true, canWrite=false},
+	position = {canRead=true, canWrite=false},
+	vehicle = {canRead=true, canWrite=false},
+	force = {canRead=true, canWrite=true},
+	force_index = {canRead=true, canWrite=false},
+	selected = {canRead=true, canWrite=true},
+	opened = {canRead=true, canWrite=true},
+	crafting_queue_size = {canRead=true, canWrite=false},
+	crafting_queue_progress = {canRead=true, canWrite=true},
+	walking_state = {canRead=true, canWrite=true},
+	riding_state = {canRead=true, canWrite=true},
+	mining_state = {canRead=true, canWrite=true},
+	shooting_state = {canRead=true, canWrite=true},
+	picking_state = {canRead=true, canWrite=true},
+	repair_state = {canRead=true, canWrite=true},
+	cursor_stack = {canRead=true, canWrite=false},
+	cursor_ghost = {canRead=true, canWrite=true},
+	driving = {canRead=true, canWrite=true},
+	crafting_queue = {canRead=true, canWrite=false},
+	following_robots = {canRead=true, canWrite=false},
+	cheat_mode = {canRead=true, canWrite=true},
+	character_crafting_speed_modifier = {canRead=true, canWrite=true},
+	character_mining_speed_modifier = {canRead=true, canWrite=true},
+	character_additional_mining_categories = {canRead=true, canWrite=true},
+	character_running_speed_modifier = {canRead=true, canWrite=true},
+	character_build_distance_bonus = {canRead=true, canWrite=true},
+	character_item_drop_distance_bonus = {canRead=true, canWrite=true},
+	character_reach_distance_bonus = {canRead=true, canWrite=true},
+	character_resource_reach_distance_bonus = {canRead=true, canWrite=true},
+	character_item_pickup_distance_bonus = {canRead=true, canWrite=true},
+	character_loot_pickup_distance_bonus = {canRead=true, canWrite=true},
+	character_inventory_slots_bonus = {canRead=true, canWrite=true},
+	character_trash_slot_count_bonus = {canRead=true, canWrite=true},
+	character_maximum_following_robot_count_bonus = {canRead=true, canWrite=true},
+	character_health_bonus = {canRead=true, canWrite=true},
+	character_personal_logistic_requests_enabled = {canRead=true, canWrite=true},
+	vehicle_logistic_requests_enabled = {canRead=true, canWrite=true},
+	opened_gui_type = {canRead=true, canWrite=false},
+	build_distance = {canRead=true, canWrite=false},
+	drop_item_distance = {canRead=true, canWrite=false},
+	reach_distance = {canRead=true, canWrite=false},
+	item_pickup_distance = {canRead=true, canWrite=false},
+	loot_pickup_distance = {canRead=true, canWrite=false},
+	resource_reach_distance = {canRead=true, canWrite=false},
+	in_combat = {canRead=true, canWrite=false},
+	character_running_speed = {canRead=true, canWrite=false},
+	character_mining_progress = {canRead=true, canWrite=false},
+	get_inventory = {canRead=false, canWrite=false, canCall=true, return_type="LuaInventory"},
+	get_max_inventory_index = {canRead=false, canWrite=false, canCall=true, return_type="number"}, --??
+	get_main_inventory = {canRead=false, canWrite=false, canCall=true, return_type="LuaInventory"},
+	can_insert = {canRead=false, canWrite=false,canCall=true, return_type="boolean"},
+	insert = {canRead=false, canWrite=false, canCall=true, return_type="number"},
+	set_gui_arrow = {canRead=false, canWrite=false, canCall=true},
+	clear_gui_arrow = {canRead=false, canWrite=false, canCall=true},
+	get_item_count = {canRead=false, canWrite=false, canCall=true, return_type="number"},
+	has_items_inside = {canRead=false, canWrite=false, canCall=true, return_type="boolean"},
+	can_reach_entity = {canRead=false, canWrite=false, canCall=true, return_type="boolean"},
+	clear_items_inside = {canRead=false, canWrite=false, canCall=true},
+	remove_item = {canRead=false, canWrite=false, canCall=true, return_type="number"},
+	teleport = {canRead=false, canWrite=false, canCall=true},
+	update_selected_entity = {canRead=false, canWrite=false, canCall=true},
+	clear_selected_entity = {canRead=false, canWrite=false, canCall=true},
+	disable_flashlight = {canRead=false, canWrite=false, canCall=true},
+	enable_flashlight = {canRead=false, canWrite=false, canCall=true},
+	is_flashlight_enabled = {canRead=false, canWrite=false, canCall=true, return_type="boolean"},
+	get_craftable_count = {canRead=false, canWrite=false, canCall=true, return_type="number"},
+	begin_crafting = {canRead=false, canWrite=false, canCall=true},
+	cancel_crafting = {canRead=false, canWrite=false, canCall=true},
+	mine_entity = {canRead=false, canWrite=false,canCall=true},
+	mine_tile = {canRead=false, canWrite=false, canCall=true},
+	is_player = {canRead=false, canWrite=false, canCall=true, return_type="boolean"},
+	open_technology_gui = {canRead=false, canWrite=false, canCall=true},
+	set_personal_logistic_slot = {canRead=false, canWrite=false, canCall=true},
+	set_vehicle_logistic_slot = {canRead=false, canWrite=false, canCall=true},
+	get_personal_logistic_slot = {canRead=false, canWrite=false, canCall=true, return_type="LuaLogisticSlot"},
+	get_vehicle_logistic_slot = {canRead=false, canWrite=false, canCall=true},
+	clear_personal_logistic_slot = {canRead=false, canWrite=false, canCall=true},
+	clear_vehicle_logistic_slot = {canRead=false, canWrite=false, canCall=true},
+	is_cursor_blueprint = {canRead=false, canWrite=false, canCall=true, return_type="boolean"},
+	get_blueprint_entities = {canRead=false, canWrite=false, canCall=true, return_type="table"},
+	is_cursor_empty = {canRead=false, canWrite=false, canCall=true, return_type="boolean"},
+}
+
+Control.copyToTable = function(control, t)
+	LuaObjectUtil.copyToTable(control, t, Control.members)
+end
+
+Control.asTable = function(control)
+	return LuaObjectUtil.asTable(control, Control.members)
+end
+
+return Control

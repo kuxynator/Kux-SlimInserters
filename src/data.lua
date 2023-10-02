@@ -61,7 +61,8 @@ local function create_dual_part_a(preset)
 	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/arrow2-l.png"
 	-- entity.pickup_position = { -0.20, -0.5 } entity.insert_position = { -0.20, 0.5 }	
 	-- FAIL: entity.tile_width = 0.5; entity.pickup_position = { 0, -0.5 }, 	entity.insert_position = { 0, 0.5 }
-	entity.pickup_position = { 0, -0.5 } entity.insert_position = { -0.20, 0.5 }
+	entity.pickup_position = { 0, -0.5 }
+	entity.insert_position = { -0.20, 0.5 }
 	entity.placeable_by = { item = base_name, count = 1 }
 
 	local item = table.deepcopy(data.raw["item"][base_name])
@@ -136,7 +137,7 @@ end
 
 local count = 1
 function this.create_double(preset)
-	print("create_double()")
+	--print("create_double()")
 	local base_name = Utils.create_name(preset)
 	local entity = table.deepcopy(data.raw["inserter"][base_name])
 	preset = table.deepcopy(preset);
@@ -148,14 +149,15 @@ function this.create_double(preset)
 	--entity.collision_box = {{0,0}, {0,0}}
 	entity.collision_box=nil
 	entity.selection_box = { { -0.4, -0.2 }, { 0.0, 0.2 } }
-	entity.name = Utils.create_name(preset); print("  name: "..entity.name)
+	entity.name = Utils.create_name(preset); --print("  name: "..entity.name)
 	entity.order = "z[slim-inserter]-b" .. count.."["..entity.name.."]"
 	entity.fast_replaceable_group = "slim-inserter"
 	entity.platform_picture.sheet.filename = mod.path.."graphics/double-arrow.png"
 	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/double-arrow.png"
 	-- entity.pickup_position = { -0.20, -0.5 } entity.insert_position = { -0.20, 0.5 }	
 	-- FAIL: entity.tile_width = 0.5; entity.pickup_position = { 0, -0.5 }, 	entity.insert_position = { 0, 0.5 }
-	entity.pickup_position = { 0, -0.5 } entity.insert_position = { -0.20, 0.5 }
+	entity.pickup_position = { 0, -0.5 }
+	entity.insert_position = { -0.20, 0.5 }
 	entity.minable.result = entity.name
 	data:extend{entity}
 
@@ -195,6 +197,70 @@ function this.create_double_part(preset)
 	data:extend{entity,arrow}
 end
 
+---@param preset Preset
+function this.create_loader(preset)
+	--print("create_loader()")
+	local base_name = preset.base_name
+	local entity = table.deepcopy(data.raw["inserter"][base_name])
+	preset = table.deepcopy(preset);
+	preset.tags = preset.tags or {}
+	--entity.collision_box = { { -0.25, -0.01 }, { 0, 0.01 } }
+	--entity.collision_mask =  {}
+	--entity.collision_box = {{0,0}, {0,0}}
+	entity.collision_box=nil
+	entity.selection_box = { { -0.4, -0.2 }, { 0.4, 0.2 } }
+	entity.name = Utils.create_name(preset); --print("  name: "..entity.name)
+	entity.order = "z[slim-inserter]-c" .. count.."["..entity.name.."]"
+	entity.fast_replaceable_group = "slim-loader"
+	entity.platform_picture.sheet.filename = mod.path.."graphics/loader/arrow.png"
+	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/loader/arrow.png"
+	entity.pickup_position = { -0.20, -0.5 +0.2 }
+	entity.insert_position = { -0.20,  0.5 -0.2 }
+	entity.minable.result = entity.name
+	entity.stack=true
+	entity.stack_size_bonus = 10
+	entity.rotation_speed = preset.rotation_speed
+	entity.allow_custom_vectors = false
+	entity.draw_inserter_arrow=false
+	data:extend{entity}
+
+	ItemBuilder.create_item(preset)
+	RecipeBuilder.create_recipe(preset)
+	
+	EntityBuilder.create_arrow(entity, preset.tint)
+
+	TechnologyBuilder.add_to_tech(preset)
+
+	this.create_loader_part(preset)
+	count = count + 1
+end
+
+---@param preset Preset
+function this.create_loader_part(preset)
+	local base_name = preset.base_name
+	local entity = table.deepcopy(data.raw["inserter"][base_name])
+	--entity.collision_box = { { 0, -0.01 }, { 0.25, 0.01 } }
+	--entity.collision_mask =  {}
+	--entity.collision_box = {{0,0}, {0,0}}
+	entity.collision_box=nil
+	entity.selection_box=nil
+	entity.name=Utils.create_name(preset).."_loaderpart"
+	entity.fast_replaceable_group = nil
+	entity.platform_picture.sheet.filename = mod.path.."graphics/loader/arrow.png" --TODO use empty sprite
+	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/loader/arrow.png"--TODO use empty sprite
+	entity.pickup_position = { 0.2, -0.5 + 0.2 } -- right near
+	entity.insert_position = { 0.2,  0.5 + 0.2 } -- right far
+	entity.allow_custom_vectors = false
+	entity.placeable_by = nil
+	entity.flags={"hidden", "not-blueprintable", "not-deconstructable", "not-on-map", "not-flammable", "not-repairable", "no-copy-paste", "not-selectable-in-game", "not-upgradable", "not-in-kill-statistics"}
+	entity.stack=true
+	entity.stack_size_bonus = 10
+	entity.rotation_speed = preset.rotation_speed
+	entity.draw_inserter_arrow=false
+	
+	data:extend{entity}
+end
+
 if(true) then
 	this.create_double(Presets.basic);
 	this.create_double(Presets.long);
@@ -204,7 +270,15 @@ if(true) then
 	this.create_double(Presets.stack_filter);
 end
 
-print("List of inserters:")
-for key, value in pairs(data.raw.inserter) do
-	if key:match("%-slim%-inserter$") then print(key) end
+if(true) then
+	this.create_loader(Presets.basic_loader);
+	this.create_loader(Presets.fast_loader);
+	this.create_loader(Presets.filter_loader);
+	this.create_loader(Presets.mk3_loader);
+	this.create_loader(Presets.mk3_filter_loader);
 end
+
+-- print("List of inserters:")
+-- for key, value in pairs(data.raw.inserter) do
+-- 	if key:match("%-slim%-inserter$") then print(key) end
+-- end

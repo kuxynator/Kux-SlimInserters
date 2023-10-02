@@ -17,6 +17,12 @@ function this.on_player_rotated_entity(evt)
 		if(not main) then log("Counterpart not found. "..name); return end
 		main.direction = entity.direction
 		entity.surface.find_entity(name .. "_arrow", entity.position).direction = (entity.direction + 4) % 8
+	elseif string.match(entity.name, "%-loader%-slim%-inserter_loaderpart$") then
+		local name = entity.name:gsub("_loaderpart$", "")
+		local main =  entity.surface.find_entity(name, entity.position)
+		if(not main) then log("Counterpart not found. "..name); return end
+		main.direction = entity.direction
+		entity.surface.find_entity(name .. "_arrow", entity.position).direction = (entity.direction + 4) % 8
 	elseif string.match(entity.name, "%-slim%-inserter$") then
 		--HACK: always rotate
 		entity.surface.find_entity(entity.name .. "_arrow", entity.position).direction = (entity.direction + 4) % 8

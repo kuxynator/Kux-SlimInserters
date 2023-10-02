@@ -1,12 +1,12 @@
 {
   "name": "Kux-SlimInserters",
-  "version": "2.0.8",
+  "version": "2.0.10",
   "title": "Kuxynator's Slim-Inserters",
   "author": "Kuxynator",
   "factorio_version": "1.1",
   "dependencies": [
     "base >= 1.1",
-	"Kux-CoreLib >= 2.8.0",
+	"Kux-CoreLib >= 2.9.0",
 	"? bobinserters >= 1.1.7",
 	"? Smart_Inserters >= 1.0.1",
 	"(?) Inserter_Config",

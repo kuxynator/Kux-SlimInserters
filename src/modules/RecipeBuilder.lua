@@ -27,6 +27,9 @@ function RecipeBuilder.create_recipe(preset)
 	if(name:find("double-")) then
 		recipe.order = "z[slim-inserter]-b" .. count .. "[" .. name .. "]"
 		recipe.icons[1].icon = mod.path.."graphics/double-arrow.png"
+	elseif(name:find("loader-")) then
+		recipe.order = "z[slim-inserter]-c" .. count .. "[" .. name .. "]"
+		recipe.icons[1].icon = mod.path.."graphics/loader/arrow.png"
 	else
 		recipe.order = "z[slim-inserter]-a" .. count .. "[" .. name .. "]"
 	end

@@ -39,13 +39,17 @@ A second series of inserters will give you the ability to use 2 lanes of the bel
 - Stack Double Slim Inserter
 - Stack Filter Double Slim Inserter
 
-The "*Double Inserter*" is a new concept from me that allows you to use 2 inserters of the same type on one tile. They will work together to unload/load from/to both sides of a belt at the same time. With the Filter Double Inserter you can place different items on each lane of a belt.
+The "*Double Inserter*" is a new concept that allows you to have 2 inserters of the same type on one tile. They will work together to unload/load from/to both sides of a belt at the same time. With the Filter Double Inserter you can place different items on each lane of a belt.
 
 ## Dual/Multi Inserter
 
-The "*Dual/Multi Inserter*" is a new concept from me that allows you to place 2 or more Slim Inserter of any type on one tile.
+The "*Dual/Multi Inserter*" is a new concept that allows you to place 2 or more Slim Inserter of any type on one tile.
 
 This does not require any new inserter types, but the tile can be occupied by several inserters. These then work together as a group. Drawback: If this feature is enabled, you can not use "fast replace" or "upgrade" because each new inserter is handled as new inserter for this tile. But a solution will be found for that as well.
+
+## Slim Loader
+
+
 
 ## Credits
 

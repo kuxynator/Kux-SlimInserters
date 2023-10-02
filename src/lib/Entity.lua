@@ -1,3 +1,5 @@
+local LuaObjectUtil = require "lib/LuaObjectUtil"
+local Control       = require "lib/Control"
 Entity = {}
 --[[
 name                           [R]	:: string	Name of the entity prototype.
@@ -183,7 +185,8 @@ linked_belt_neighbour          [R]	:: LuaEntity?	Neighbour to which this linked 
 radar_scan_progress            [R]	:: float	The current radar scan progress, as a number in range [0, 1].
 rocket_silo_status             [R]	:: defines.rocket_silo_status	The status of this rocket silo entity.
 ]]
-local entity_properties = {
+
+Entity.members = {
 	"name",
 "type",
 "prototype",
@@ -368,118 +371,68 @@ local entity_properties = {
 "rocket_silo_status"
 }
 
-local LuaControl = {}
-LuaControl.property_names = {
-"surface",
-"surface_index",
-"position",
-"vehicle",
-"force",
-"force_index",
-"selected",
-"opened",
-"crafting_queue_size",
-"crafting_queue_progress",
-"walking_state",
-"riding_state",
-"mining_state",
-"shooting_state",
-"picking_state",
-"repair_state",
-"cursor_stack",
-"cursor_ghost",
-"driving",
-"crafting_queue",
-"following_robots",
-"cheat_mode",
-"character_crafting_speed_modifier",
-"character_mining_speed_modifier",
-"character_additional_mining_categories",
-"character_running_speed_modifier",
-"character_build_distance_bonus",
-"character_item_drop_distance_bonus",
-"character_reach_distance_bonus",
-"character_resource_reach_distance_bonus",
-"character_item_pickup_distance_bonus",
-"character_loot_pickup_distance_bonus",
-"character_inventory_slots_bonus",
-"character_trash_slot_count_bonus",
-"character_maximum_following_robot_count_bonus",
-"character_health_bonus",
-"character_personal_logistic_requests_enabled",
-"vehicle_logistic_requests_enabled",
-"opened_gui_type",
-"build_distance",
-"drop_item_distance",
-"reach_distance",
-"item_pickup_distance",
-"loot_pickup_distance",
-"resource_reach_distance",
-"in_combat",
-"character_running_speed",
-"character_mining_progress",
-"get_inventory",
-"get_max_inventory_index",
-"get_main_inventory",
-"can_insert",
-"insert",
-"set_gui_arrow",
-"clear_gui_arrow",
-"get_item_count",
-"has_items_inside",
-"can_reach_entity",
-"clear_items_inside",
-"remove_item",
-"teleport",
-"update_selected_entity",
-"clear_selected_entity",
-"disable_flashlight",
-"enable_flashlight",
-"is_flashlight_enabled",
-"get_craftable_count",
-"begin_crafting",
-"cancel_crafting",
-"mine_entity",
-"mine_tile",
-"is_player",
-"open_technology_gui",
-"set_personal_logistic_slot",
-"set_vehicle_logistic_slot",
-"get_personal_logistic_slot",
-"get_vehicle_logistic_slot",
-"clear_personal_logistic_slot",
-"clear_vehicle_logistic_slot",
-"is_cursor_blueprint",
-"get_blueprint_entities",
-"is_cursor_empty",
-}
-local property_names={}
-for _,v in pairs(entity_properties) do table.insert(property_names,v) end
-for _,v in pairs(LuaControl.property_names) do table.insert(property_names,v) end
-
-function Entity.dump(entity)
-	local t = {}
-	for _, prop in pairs(entity_properties) do
+function Entity.copyToTable(entity, t)
+	for _, prop in pairs(Entity.members) do
 		pcall(function()
 			t[prop] = entity[prop]
-			if(type(t[prop])=="function") then t[prop] = nil end
+			if(type(t[prop])=="function") then t[prop.."()"] = prop() end
 		end)
 	end
+	Control.copyToTable(entity, t)
+end
+
+---Copies the properties of an entity to a table
+---@param entity LuaEntity The entity to copy
+---@return LuaEntity #The LuaEntity as table
+function Entity.asTable(entity)
+	local t = {}
+	Entity.copyToTable(entity, t)
+	return t
+end
+
+function Entity.dump(entity)
+	local t = Entity.asTable(entity)
 	return serpent.block(t)
 end
 
 function Entity.accesstTest(entity)
-	for _, value in pairs(entity_properties) do
-		xpcall(function()
-			local x=entity[value]-- read access test
-			entity[value] = x -- write access test
-			-- if x~=nil then
-				-- print(value) -- read success AND not nil
-			-- end
-			print(value)
-		end, function(err)
-			--print("ERROR  "..value.." "..err)
+	for _, name in pairs(Entity.members) do
+		local canRead=false
+		local canWrite=false
+		local canCall=false
+		local value = nil
+		local return_type = nil
+		pcall(function()
+			value = entity[name]-- read access test
+			if(type(value)=="function") then
+				canCall=true
+			else
+				canRead=true
+				if(type(value)=="table" and value["object_name"]) then
+					return_type = value["object_name"]
+				end
+			end
 		end)
+		if(not canCall) then
+			pcall(function()
+				entity[name] = value -- write access test
+				canWrite=true
+			end)
+		end
+		-- if x~=nil then
+			-- print(value) -- read success AND not nil
+		-- end
+		if(return_type) then
+			if(canCall) then
+				return_type =", return_type=\""..return_type.."\""
+			else
+				return_type =", type=\""..return_type.."\""
+			end
+		end
+		if(canRead or canWrite or canCall) then
+			print(string.format("%s = {canRead=%s, canWrite=%s, canCall=%s%s}", name, tostring(canRead), tostring(canWrite), tostring(canCall), return_type or ""))
+		end
+		
 	end
 end
 
@@ -533,16 +486,18 @@ function Entity.give_back(item_stack, evt)
 	end
 	if(evt) then
 		local entity = Utils.get_entity[evt.name](evt)
-		Utils.get_entity[evt.name](evt)
-		--TODO: user player position, if evt.position is nil
-		entity.surface.spill_item_stack(evt.position, {name = item_stack.name, count = 1}, true)
-		print("  + ground "..item_stack.name)
-		--TODO: do not put on a belt
-		return true
+		if(entity.is_valid) then
+			--TODO: user player position, if evt.position is nil
+			entity.surface.spill_item_stack(evt.position, {name = item_stack.name, count = 1}, true)
+			print("  + ground "..item_stack.name)
+			--TODO: do not put on a belt
+			return true
+		end
+		--fallback
+		game.surfaces["nauvis"].spill_item_stack({0,0}, {name = item_stack.name, count = 1}, true)
 	end
 
 	return false
-	
 end
 
 function Entity.copy_inserter_properties(template, entity)
@@ -561,5 +516,6 @@ function Entity.copy_inserter_properties(template, entity)
 		end
 	end
 end
+
 
 return Entity
