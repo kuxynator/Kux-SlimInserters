@@ -7,19 +7,19 @@ local InserterEntity = require("lib/InserterEntity") --[[@as InserterEntity]]
 ---@param inserter LuaEntity
 ---@param part LuaEntity
 function InserterUtils.connect_loaderpart(inserter, part)
-	trace("connect_loaderpart: "..inserter.name)
+	--[[TRACE]]trace("connect_loaderpart: "..inserter.name)
 	local hastBehavior = inserter.get_control_behavior() ~= nil
 
 	if(not hastBehavior) then
 		local behavior = inserter.get_or_create_control_behavior() --[[@as LuaInserterControlBehavior]]
-		trace.append(InserterEntity.dump_circuit_behavior(inserter))
+		--[[TRACE]]trace.append(InserterEntity.dump_circuit_behavior(inserter))
 		behavior.circuit_mode_of_operation = defines.control_behavior.inserter.circuit_mode_of_operation.none
-		trace.append("set circuit_mode_of_operation = none")
+		--[[TRACE]]trace.append("set circuit_mode_of_operation = none")
 	end
 
 	part.inserter_stack_size_override = inserter.inserter_stack_size_override
 	InserterEntity.copy_filter(inserter, part)
-	InserterEntity.connect_green_wire(inserter, part)
+	InserterEntity.connect_wires(inserter, part)
 	InserterEntity.copy_behavior(inserter, part)
 
 end

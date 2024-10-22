@@ -87,6 +87,7 @@ function EntityBuilder.create_entity(preset)
 	entity.minable.result = name
 	entity.order = "z[slim-inserter]-a"..count.."[" .. name .. "]"
 	entity.localised_name = { "entity-name." .. entity.name }
+	entity.localised_description = { "entity-description." .. entity.name }
 
 	if mods["Squeak Through"] then entity.collision_mask[3] = nil end --TODO: revise [3]
 
@@ -132,6 +133,7 @@ function EntityBuilder.create_arrow(parent, tint)
 		scale = 0.5,
 	} }
 	data:extend { entity }
+	return entity
 end
 
 return EntityBuilder

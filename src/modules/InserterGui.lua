@@ -28,7 +28,7 @@ end
 
 function this.on_gui_closed(evt)
 	if not evt.entity or evt.entity.type ~= "inserter" or not string.match(evt.entity.name, "%-slim%-inserter") then return end
-	trace("on_gui_closed: "..evt.entity.name)
+	--[[TRACE]]trace("on_gui_closed: "..evt.entity.name)
 	xpcall(function ()
 		local inserter = evt.entity --[[@as LuaEntity]]
 

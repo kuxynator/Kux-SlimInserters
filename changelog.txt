@@ -1,4 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.12
+Date: 2023-10-31
+  Bugfixes:
+    - Fix that wires and filter was removed after bots build the second double inserter from blueprint
+    - Fix slim loaders missing internal red wire connection
+---------------------------------------------------------------------------------------------------
+Version: 2.0.11
+Date: 2023-10-02
+  Changes:
+    - make inserters/loaders upgradable
+  Bugfixes:
+    - FIX a crash in on_destroyed_entity
+    - FIX that parts of loader are not removed
+---------------------------------------------------------------------------------------------------
 Version: 2.0.10
 Date: 2023-10-02
   Changes:

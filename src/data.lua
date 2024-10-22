@@ -1,4 +1,6 @@
 require("mod")
+IR3=mods["IndustrialRevolution3"]
+-- ir-inserters-1 is nil !!  print("ir-inserters-1: "..serpent.block(data.raw.technology["ir-inserters-1"]))
 
 require("prototypes/common")
 Presets = require("prototypes/Presets")
@@ -19,16 +21,26 @@ local function create(preset)
 	EntityBuilder.create_entity(preset)
 	ItemBuilder.create_item(preset)
 	RecipeBuilder.create_recipe(preset)
-	TechnologyBuilder.add_to_tech(preset)
+	if(not IR3) then TechnologyBuilder.add_to_tech(preset) end-- does not work with IR3
 end
 
--- vanilla
+-- vanilla equivalents
 create(Presets.basic)
 create(Presets.long)
 create(Presets.fast)
 create(Presets.filter)
 create(Presets.stack)
 create(Presets.stack_filter)
+
+-- IR3
+-- ir-inserters-1: inserter, long-handed-inserter, slow-filter-inserter
+-- ir-inserters-2: fast-inserter, filter-inserter
+-- ir-inserters-3: stack-inserter, stack-filter-inserter
+
+--upgrades
+data.raw.inserter["basic-slim-inserter"].next_upgrade = "fast-slim-inserter"
+data.raw.inserter["fast-slim-inserter"].next_upgrade = "stack-slim-inserter"
+data.raw.inserter["filter-slim-inserter"].next_upgrade = "stack-filter-slim-inserter"
 
 -- kr2
 if false --[[HACK: deactivated]] and mods["Krastorio2"] then
@@ -38,10 +50,6 @@ if false --[[HACK: deactivated]] and mods["Krastorio2"] then
 	end
 end
 
---HACK: feate disabled, we have the color purple already used for filter inserter
-if false --[[HACK: deactivated]] and mods["boblogistics"] then
-	create(Presets.purple_one)
-end
 
 -- because "Collision-box has to contain the [0,0] point." we can not put 2 entities on the same tile!
 -- workaround: remove collision-box and handle collission manually
@@ -56,7 +64,7 @@ local function create_dual_part_a(preset)
 	entity.selection_box = { { -0.4, -0.2 }, { 0.0, 0.2 } }
 	entity.name=base_name.."_part-a"
 	entity.subgroup = "inserter-sub-items"
-	entity.fast_replaceable_group = ""
+	entity.fast_replaceable_group = "slim-inserter"
 	entity.platform_picture.sheet.filename = mod.path.."graphics/arrow2-l.png"
 	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/arrow2-l.png"
 	-- entity.pickup_position = { -0.20, -0.5 } entity.insert_position = { -0.20, 0.5 }	
@@ -88,7 +96,7 @@ local function create_dual_part_b(preset)
 	entity.selection_box = { { 0.0, -0.2 }, { 0.4, 0.2 } }
 	entity.name=base_name.."_part-b"
 	entity.subgroup = "inserter-sub-items"
-	entity.fast_replaceable_group = ""
+	entity.fast_replaceable_group = "slim-inserter"
 	entity.platform_picture.sheet.filename = mod.path.."graphics/arrow2-r.png"
 	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/arrow2-r.png"
 	-- entity.pickup_position = { -0.20, -0.5 } entity.insert_position = { -0.20, 0.5 }	
@@ -104,7 +112,7 @@ local function create_dual_part_b(preset)
 	data:extend{entity,arrow}
 end
 
-if(true) then --HACK: temporary feature "half inserter"
+if(settings.startup[mod.prefix.."dual-slim-inserter-enable"].value) then --HACK: 
 	create_dual_part_a(Presets.basic);create_dual_part_b(Presets.basic)
 	create_dual_part_a(Presets.long);create_dual_part_b(Presets.long)
 	create_dual_part_a(Presets.fast);create_dual_part_b(Presets.fast)
@@ -209,6 +217,7 @@ function this.create_loader(preset)
 	--entity.collision_box = {{0,0}, {0,0}}
 	entity.collision_box=nil
 	entity.selection_box = { { -0.4, -0.2 }, { 0.4, 0.2 } }
+	entity.next_upgrade=nil
 	entity.name = Utils.create_name(preset); --print("  name: "..entity.name)
 	entity.order = "z[slim-inserter]-c" .. count.."["..entity.name.."]"
 	entity.fast_replaceable_group = "slim-loader"
@@ -246,6 +255,7 @@ function this.create_loader_part(preset)
 	entity.selection_box=nil
 	entity.name=Utils.create_name(preset).."_loaderpart"
 	entity.fast_replaceable_group = nil
+	entity.next_upgrade=nil
 	entity.platform_picture.sheet.filename = mod.path.."graphics/loader/arrow.png" --TODO use empty sprite
 	entity.platform_picture.sheet.hr_version.filename = mod.path.."graphics/loader/arrow.png"--TODO use empty sprite
 	entity.pickup_position = { 0.2, -0.5 + 0.2 } -- right near
@@ -258,10 +268,11 @@ function this.create_loader_part(preset)
 	entity.rotation_speed = preset.rotation_speed
 	entity.draw_inserter_arrow=false
 	
+	
 	data:extend{entity}
 end
 
-if(true) then
+if(settings.startup[mod.prefix.."double-slim-inserter-enable"].value) then
 	this.create_double(Presets.basic);
 	this.create_double(Presets.long);
 	this.create_double(Presets.fast);
@@ -270,12 +281,17 @@ if(true) then
 	this.create_double(Presets.stack_filter);
 end
 
-if(true) then
+if(settings.startup[mod.prefix.."loader-slim-inserter-enable"].value) then
 	this.create_loader(Presets.basic_loader);
 	this.create_loader(Presets.fast_loader);
 	this.create_loader(Presets.filter_loader);
 	this.create_loader(Presets.mk3_loader);
 	this.create_loader(Presets.mk3_filter_loader);
+
+	--upgrades
+	data.raw.inserter["basic-loader-slim-inserter"].next_upgrade = "fast-loader-slim-inserter"
+	data.raw.inserter["fast-loader-slim-inserter"].next_upgrade = "fast2-loader-slim-inserter"
+	data.raw.inserter["filter-loader-slim-inserter"].next_upgrade = "fast2-filter-loader-slim-inserter"
 end
 
 -- print("List of inserters:")

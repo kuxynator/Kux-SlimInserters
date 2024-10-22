@@ -21,6 +21,7 @@ local function fallback(...)
 end
 
 local consume_vanilla_inserter = settings.startup[mod.prefix.."consume-vanilla-inserter"].value
+if(mods["IndustrialRevolution3"]) then consume_vanilla_inserter = false end
 
 ---@type Preset
 Presets.basic = {
@@ -40,11 +41,11 @@ Presets.basic = {
 		, 1 },
 	double_extra_ingredients = {
 		{ "iron-plate", 2 }
-	}
+	},
 }
-if mods["bobelectronics"] then
-	Presets.basic.recipe[1][2] = {"basic-circuit-board", 2}
-end
+-- if mods["bobelectronics"] then
+-- 	Presets.basic.recipe[1][2] = {"basic-circuit-board", 2}
+-- end
 
 ---@type Preset
 Presets.long = {
@@ -112,9 +113,9 @@ Presets.filter = { --TODO: new feature
 	},
 	tags = { filter = true }
 }
-if mods["bobelectronics"] then
-	Presets.fast.recipe[1][2] = {"advanced-circuit", 2}
-end
+-- if mods["bobelectronics"] then
+-- 	Presets.fast.recipe[1][2] = {"advanced-circuit", 2}
+-- end
 
 ---@type Preset
 Presets.stack = {
@@ -144,7 +145,7 @@ Presets.stack = {
 -- end
 
 ---@type Preset
-Presets.stack_filter = { --TODO: new feature
+Presets.stack_filter = {
 	base_name = "stack-filter-inserter",
 	tint = { r = 0.9, g = 0.9, b = 0.9 }, --white
 	energy = { passive = "400W", active = "16kJ" },

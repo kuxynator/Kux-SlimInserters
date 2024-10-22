@@ -485,8 +485,8 @@ function Entity.give_back(item_stack, evt)
 		end
 	end
 	if(evt) then
-		local entity = Utils.get_entity[evt.name](evt)
-		if(entity.is_valid) then
+		local entity = Utils.get_entity(evt)
+		if(entity.valid) then
 			--TODO: user player position, if evt.position is nil
 			entity.surface.spill_item_stack(evt.position, {name = item_stack.name, count = 1}, true)
 			print("  + ground "..item_stack.name)

@@ -28,8 +28,8 @@ function TechnologyBuilder.add_to_tech(preset)
 			end
 		end
 	end
-	local logFound="found in "..logTech; if not found then logFound = "not found" end
-	log("add_to_tech: "..name.." ["..logFound.."]")
+	local logFound="found in "..logTech.." add "..name.." too"; if not found then logFound = "not found" end
+	log("add_to_tech: "..base_name.." "..logFound)
 end
 
 return TechnologyBuilder

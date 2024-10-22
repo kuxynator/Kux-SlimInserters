@@ -57,16 +57,23 @@ function Utils.tag_name(name, tags)
 	return (prefix or "")..name
 end
 
-Utils.get_entity = {
-	[defines.events.on_player_mined_entity] = function(e) return e.entity end,
-	[defines.events.on_built_entity       ] = function(e) return e.created_entity end,
-	[defines.events.on_robot_built_entity ] = function(e) return e.created_entity end,
-	[defines.events.script_raised_built   ] = function(e) return e.entity end,
-	[defines.events.script_raised_revive  ] = function(e) return e.entity end,
-	[defines.events.on_robot_mined_entity ] = function(e) return e.entity end,
-	[defines.events.on_entity_died        ] = function(e) return e.entity end,
-	[defines.events.script_raised_destroy ] = function(e) return e.entity end,
-}
+-- Utils.get_entity = {
+-- 	[defines.events.on_player_mined_entity] = function(e) return e.entity end,
+-- 	[defines.events.on_built_entity       ] = function(e) return e.created_entity end,
+-- 	[defines.events.on_robot_built_entity ] = function(e) return e.created_entity end,
+-- 	[defines.events.script_raised_built   ] = function(e) return e.entity end,
+-- 	[defines.events.script_raised_revive  ] = function(e) return e.entity end,
+-- 	[defines.events.on_robot_mined_entity ] = function(e) return e.entity end,
+-- 	[defines.events.on_entity_died        ] = function(e) return e.entity end,
+-- 	[defines.events.script_raised_destroy ] = function(e) return e.entity end,
+-- }
+
+---Gets the entity from an event
+---@param e table events args
+---@return LuaEntity
+function Utils.get_entity(e)
+	return e.entity or e.created_entity or error("no entity in event")
+end
 
 Utils.evt_displaynames={}
 for key, value in pairs(defines.events) do Utils.evt_displaynames[value]=key.."("..value..")" end
@@ -100,7 +107,7 @@ function Utils.get_item_filter()
 	return filter
 end
 
-function Utils.reload_recipes()
+function Utils.reload_recipes(_)
 	-- Enable researched recipes
 	for i, force in pairs(game.forces) do
 		for _, tech in pairs(force.technologies) do

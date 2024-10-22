@@ -12,6 +12,7 @@ function RecipeBuilder.create_recipe(preset)
 
 	recipe.name = name
 	recipe.localised_name = { "entity-name." .. recipe.name }
+	recipe.localised_description = { "entity-description." .. recipe.name }
 	recipe.result = name
 	
 	recipe.normal = nil

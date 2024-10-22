@@ -6,16 +6,34 @@ local InserterUtils = require("modules/InserterUtils") --[[@as InserterUtils]]
 
 local function dump_entities(surface, pos)
 	xpcall(function()
-		trace.append("  entities at "..pos.x..","..pos.y.." ("..surface.name..")")
+		--[[TRACE]]trace.append("  entities at "..pos.x..","..pos.y.." ("..surface.name..")")
 		local entites = surface.find_entities_filtered { position = pos}
 		for _, entity in ipairs(entites) do
 			local name = entity.name
 			if(name=="entity-ghost") then name=name.." ("..entity.ghost_name.."/"..entity.ghost_type.. ")"
 			else name=name.." ("..entity.type..")" end
 			local valid = entity.valid and "" or " [not valid]"
-			trace.append("    ? "..name..valid.." ("..(entity.unit_number or "")..")")
+			--[[TRACE]]trace.append("    ? "..name..valid.." ("..(entity.unit_number or "")..")")
 		end
 	end, function(err) trace.append("  error: dump_entities failed. "..err) end)
+end
+
+function this.find_previous_inserters(new_entity)
+	local list = new_entity.surface.find_entities_filtered { position = new_entity.position }
+	local previous_inserters = {}
+	for _, entity in ipairs(list) do
+		if(not entity.valid) then goto next end
+		if(entity.unit_number == new_entity.unit_number) then goto next end --skip self
+		if(entity.type~="inserter") then goto next end
+		if((
+			entity.name:match("%-slim%-inserter$") or -- includes also loader-slim-inserter
+			entity.name:match("%-slim%-inserter_part%-[ab]$"))
+		) then
+			table.insert(previous_inserters, entity)
+		end
+		::next::
+	end
+	return previous_inserters
 end
 
 -- on_built_entity
@@ -23,8 +41,8 @@ end
 -- script_raised_built
 -- script_raised_revive
 function this.on_built_entity(evt)
-	local new_entity = Utils.get_entity[evt.name](evt)
-	--trace("on_built_entity ", function() return trace.formatEntityEvent(evt) end)
+	local new_entity = Utils.get_entity(evt)
+	--[[TRACE]]--trace("on_built_entity ", function() return trace.formatEntityEvent(evt) end)
 	if(new_entity.name=="entity-ghost") then
 		if(not new_entity.prototype.name:match("%-slim%-inserter")) then --[[trace.append("  skip: not an slim-inserter ghost");]] return end
 	elseif not string.match(new_entity.name, "%-slim%-inserter") then --[[trace.append("  skip: not an slim-inserter");]] return end
@@ -40,7 +58,7 @@ function this.on_built_entity(evt)
 		this.on_built_slim_inserter(evt, new_entity)
 
 	-- end, function(err)
-	-- 	trace.append("  error: on_built_entity failed.\n" .. debug.traceback(err,2))
+	-- 	--[[TRACE]]trace.append("  error: on_built_entity failed.\n" .. debug.traceback(err,2))
 	-- 	ErrorHandler.createReport(evt, err, {mod = mod.name, point_to={type="entity", entity = new_entity}})
 	-- end)
 end
@@ -48,12 +66,13 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function this.on_built_slim_inserter(evt, new_entity)
+	--[[TRACE]]trace("on_built_slim_inserter")
 	-- Check if there is already an inserter on the tile
 	local existingEntities = new_entity.surface.find_entities_filtered{position = new_entity.position}
 	local existingInserters={};
 	for _, ee in ipairs(existingEntities) do
 		local c = "? "; if(ee.unit_number==new_entity.unit_number) then c="* " end
-		trace.append("  "..c..ee.name.." ("..(ee.unit_number or "-")..")")
+		--[[TRACE]]trace.append("  "..c..ee.name.." ("..(ee.unit_number or "-")..")")
 		if(ee.type~="inserter") then ;--skip arrows and non inserters
 		elseif(ee.unit_number == new_entity.unit_number) then ; --skip self
 		else table.insert(existingInserters,ee) end
@@ -62,11 +81,11 @@ function this.on_built_slim_inserter(evt, new_entity)
 	--TODO: bots could set slim-inserter_part-a/b from blueprint
 
 	if #existingInserters == 0 then
-		trace.append("  on empty tile")
+		--[[TRACE]]trace.append("  on empty tile")
 		this.remove_remnants(new_entity)
 		this.create_arrow(new_entity)
 	elseif #existingInserters == 1 then
-		trace.append("  over existing: "..new_entity.name)
+		--[[TRACE]]trace.append("  over existing: "..new_entity.name)
 		local force = new_entity.force
 		local position = new_entity.position;
 		local direction_a = new_entity.direction;
@@ -75,7 +94,13 @@ function this.on_built_slim_inserter(evt, new_entity)
 		local existing_prefix = existingInserters[1].name:match("(.-%-)slim%-inserter$") or existingInserters[1].name:match("(.-%-)slim%-inserter_part%-[ab]$")
 		local existing_direction = existingInserters[1].direction;
 
-		this.remove_matching_arrow(existingInserters[1]);
+		if(existingInserters[1].name:match("slim%-inserter_part%-[ab]$") and new_entity.name:match("slim%-inserter_part%-[ab]$")) then
+			-- built from ghost
+			--[[TRACE]]trace.append("  built from ghost")
+			return
+		end
+
+		this.remove_matching_arrow(existingInserters[1])
 		new_entity.destroy()
 		local entity_a = surface.create_entity { name = new_prefix.."slim-inserter_part-a", position = position, direction = direction_a, fast_replace = true, force = force, spill = false }
 		this.create_arrow(entity_a)
@@ -87,11 +112,11 @@ function this.on_built_slim_inserter(evt, new_entity)
 	elseif #existingInserters >= 2 then
 		local existing_prefix = existingInserters[1].name:match("(.-%-)slim%-inserter")
 		if(existing_prefix:match("%-double$")) then
-			trace.append("  over double") -- existing inserter is an double inserter
+			--[[TRACE]]trace.append("  over double") -- existing inserter is an double inserter
 			Entity.deconstruct(new_entity, evt) --cancel build
 			--TODO: replace double inserter
 		else
-			trace.append("  over dual") -- existing inserter is an dual inserter (or unknown type!)
+			--[[TRACE]]trace.append("  over dual") -- existing inserter is an dual inserter (or unknown type!)
 			local surface = new_entity.surface
 			local position = new_entity.position;
 			local name = new_entity.name
@@ -102,7 +127,7 @@ function this.on_built_slim_inserter(evt, new_entity)
 end
 
 function this.on_built_double_inserter(evt, new_entity)
-	trace("on_built_double_inserter")
+	--[[TRACE]]trace("on_built_double_inserter")
 
 	if(evt.name=="script_raised_built" or evt.name=="script_raised_revive") then
 		--TODO: not implemented
@@ -119,27 +144,39 @@ function this.on_built_double_inserter(evt, new_entity)
 end
 
 function this.on_built_loader_inserter(evt, new_entity)
-	trace("on_built_loader_inserter ")
-
+	--[[TRACE]]trace("on_built_loader_inserter ")
 	if(evt.name=="script_raised_built" or evt.name=="script_raised_revive") then
 		--TODO: not implemented
 		return
 	end
 	local partghost=this.find_loaderpart_ghost(new_entity) or this.find_loaderpart(new_entity)
+	local previous_inserters = this.find_previous_inserters(new_entity)
+	local properties = {}
+	if(#previous_inserters>0) then
+		--[[TRACE]]trace.append("  copy properties from previous inserter '"..previous_inserters[1].name.."'")
+		properties.filters = {}
+		--[[TRACE]]trace.append("    filter_slot_count: "..previous_inserters[1].filter_slot_count)
+		for i = 1, previous_inserters[1].filter_slot_count, 1 do
+			properties.filters[i] = previous_inserters[1].get_filter(i)
+			--[[TRACE]]trace.append("    ["..i.."]: "..(properties.filters[i] or "nil"))
+		end
+		properties.inserter_filter_mode = previous_inserters[1].inserter_filter_mode
+		--[[TRACE]]trace.append("    inserter_filter_mode: "..(properties.inserter_filter_mode or "nil"))		
+	end
 
-	--trace.append(InserterEntity.dump_circuit_behavior(new_entity))
+	--[[TRACE]]--trace.append(InserterEntity.dump_circuit_behavior(new_entity))
 
 	this.remove_any_other({new_entity,partghost}, evt)
 	local part = this.create_loader_part(new_entity, partghost)
-	this.create_arrow(new_entity)	
+	this.create_arrow(new_entity)
 	InserterUtils.connect_loaderpart(new_entity, part)
 
 	--dump_entities(new_entity.surface, new_entity.position)
 end
 
 function this.on_built_inserter_ghost(evt, new_entity)
-	trace.append("  ghost: "..new_entity.ghost_name)
-	--trace.append("  "..Entity.dump(new_entity))
+	--[[TRACE]]trace.append("  ghost: "..new_entity.ghost_name)
+	--[[TRACE]]--trace.append("  "..Entity.dump(new_entity))
 
 	if(evt.name=="script_raised_built" or evt.name=="script_raised_revive") then
 		--TODO: not implemented
@@ -155,7 +192,7 @@ function this.on_built_inserter_ghost(evt, new_entity)
 
 	-- local prefix = new_entity.ghost_name:match("^(.-%-)slim%-inserter_part%-[ab]$")
 	-- if(prefix) then -- prefix- (l-slim-inserter|r-slim-inserter)
-	-- 	trace.append("  sub inserter")
+	-- 	--[[TRACE]]trace.append("  sub inserter")
 	-- 	this.create_slim_inserter_ghost(new_entity)
 	-- 	new_entity.destroy()
 	-- end
@@ -221,7 +258,7 @@ function this.create_slim_inserter_ghost(new_entity)
 		if(new_entity.surface.can_place_entity(replacement) == false) then trace.append("  can't place entity"); return end
 		local ghost = new_entity.surface.create_entity(replacement)
 		Entity.copy_inserter_properties(new_entity, ghost)
-		--trace.append("  ghost: "..Entity.dump(ghost))
+		--[[TRACE]]--trace.append("  ghost: "..Entity.dump(ghost))
 	end
 end
 
@@ -285,7 +322,7 @@ end
 function this.remove_remnants(inserter)
 	local list = inserter.surface.find_entities_filtered { position = inserter.position, name = "inserter-remnants" }
 	for _, entity in ipairs(list) do
-		trace.append("  x "..entity.name)
+		--[[TRACE]]trace.append("  x "..entity.name)
 		entity.destroy()
 	end
 end
@@ -295,7 +332,7 @@ function this.remove_any_other(inserter, e)
 	assert(type(inserter)=="table", "Invalid Argumen. 'inserter' must be a string or a string-array")
 
 	local function destroy(entity)
-		trace.append("  x "..entity.name)
+		--[[TRACE]]trace.append("  x "..entity.name)
 		entity.destroy()
 	end
 
@@ -310,6 +347,7 @@ function this.remove_any_other(inserter, e)
 		elseif(entity.name:match("%-slim%-inserter_arrow$")) then destroy(entity)
 		elseif(entity.name:match("%-double%-slim%-inserter_part$")) then destroy(entity)
 		elseif(entity.name:match("%-slim%-inserter$")) then Entity.deconstruct(entity, e)
+		elseif(entity.name:match("%-slim%-inserter_loaderpart$")) then destroy(entity)
 		else trace.append("  ? "..entity.name) end
 	end
 end

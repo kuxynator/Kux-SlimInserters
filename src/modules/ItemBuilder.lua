@@ -10,7 +10,8 @@ function ItemBuilder.create_item(preset)
 	local item = table.deepcopy(data.raw.item[base_name]) --[[@as Item]]
 	item.name = name
 	item.place_result = name
-	item.localised_name = { "item-name." .. item.name }
+	item.localised_name = { "entity-name." .. item.name }
+	item.localised_description = { "entity-description." .. item.name }
 	if(name:find("double-")) then
 		item.order = "z[slim-inserter]-b"..count
 		item.icons = { {

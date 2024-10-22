@@ -39,7 +39,7 @@ local function deconstruct(evt,surface, pos, name)
 end
 
 function this.on_destroyed_entity(evt)
-	local old_entity = Utils.get_entity[evt.name](evt)
+	local old_entity = Utils.get_entity(evt)
 	--print("on_destroyed_entity "..old_entity.name) -- unit_number is not available
 	--if not old_entity.name:match("%-slim%-inserter$") then print("  not an slim-inserter") return end
 	if not old_entity.name:match("%-slim%-inserter") then return end
